@@ -5,7 +5,7 @@ import java.util.Date
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(ToDoEntity.TABLE_NAME)
+@Entity(TodoDetailsEntity.TABLE_NAME)
 data class TodoDetailsEntity(
     @PrimaryKey(autoGenerate = false)
     val id: Int,
@@ -13,8 +13,8 @@ data class TodoDetailsEntity(
     val picture: String, // Todo: handle Pictures
     val createdLatitude: String,
     val createdLongitude: String,
-    val createdDate: Date,
-    val createdTime: Time,
+    val createdDate: String, //Todo: LocalDate
+    val createdTime: String, //Todo: LocalTime
     val moduleCode: String, // Todo: Enum
 ) {
     companion object {

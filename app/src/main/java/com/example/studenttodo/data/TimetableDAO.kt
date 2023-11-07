@@ -10,13 +10,13 @@ import com.example.studenttodo.entities.TimetableEntity
 @Dao
 interface TimetableDAO {
     @Insert
-    fun insert(key: TimetableEntity)
+    suspend fun insert(key: TimetableEntity)
     @Update
-    fun update(key: TimetableEntity)
+    suspend fun update(key: TimetableEntity)
     @Delete
-    fun delete(key: TimetableEntity)
-    @Query("SELECT * from " + TimetableEntity.TABLE_NAME + " WHERE id = :id")
-    fun getTodo(id: Int): TimetableEntity
-    @Query("SELECT * from " + TimetableEntity.TABLE_NAME)
-    fun getAllTodos(): List<TimetableEntity>
+    suspend fun delete(key: TimetableEntity)
+//    @Query("SELECT * from " + TimetableEntity.TABLE_NAME + " WHERE id = :id")
+//    fun getTodo(id: Int): TimetableEntity
+//    @Query("SELECT * from " + TimetableEntity.TABLE_NAME)
+//    fun getAllTodos(): List<TimetableEntity>
 }

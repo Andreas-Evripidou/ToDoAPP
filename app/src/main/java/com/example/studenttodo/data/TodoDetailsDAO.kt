@@ -10,11 +10,11 @@ import com.example.studenttodo.entities.TodoDetailsEntity
 @Dao
 interface TodoDetailsDAO {
     @Insert
-    fun insert(key: TodoDetailsEntity)
+    suspend fun insert(key: TodoDetailsEntity)
     @Update
-    fun update(key: TodoDetailsEntity)
+    suspend fun update(key: TodoDetailsEntity)
     @Delete
-    fun delete(key: TodoDetailsEntity)
-    @Query("SELECT * from " + TodoDetailsEntity.TABLE_NAME + " WHERE id = :id")
-    fun getTodoDetails(id: Int): TodoDetailsEntity
+    suspend fun delete(key: TodoDetailsEntity)
+//    @Query("SELECT * from " + TodoDetailsEntity.TABLE_NAME + " WHERE id = :id")
+//    fun getTodoDetails(id: Int): TodoDetailsEntity
 }

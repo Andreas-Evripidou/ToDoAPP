@@ -12,6 +12,9 @@ import com.example.studenttodo.entities.TimetableEntity
 @Database(entities = [ToDoEntity::class, TodoDetailsEntity::class, ModuleEntity::class, TimetableEntity::class], version = 1, exportSchema = false)
 abstract class ToDoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDAO
+    abstract fun todoDetailsDao(): TodoDetailsDAO
+    abstract fun moduleDAO(): ModuleDAO
+    abstract fun timetableDAO(): TimetableDAO
 
     companion object {
         private const val DB_NAME = "todo_db"
