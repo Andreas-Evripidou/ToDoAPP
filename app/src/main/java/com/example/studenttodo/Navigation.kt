@@ -1,0 +1,125 @@
+package com.example.studenttodo
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+
+data class NavigationComponent(
+    val title: String,
+    val filledIcon: ImageVector,
+    val outlinedIcon: ImageVector,
+    val screenID: Int /*TODO enum */
+){
+    @Composable
+    fun iconStyled(selectedScreenID: Int){
+        if (selectedScreenID == screenID)
+            Icon(filledIcon, contentDescription = title)
+        else
+            Icon(outlinedIcon, contentDescription = title)
+    }
+}
+
+val navigationList = listOf(
+    NavigationComponent("Home", Icons.Filled.Home, Icons.Outlined.Home, ScreenID.HOME),
+    NavigationComponent("Create", Icons.Filled.AddCircle, Icons.Outlined.AddCircle, ScreenID.CREATE ),
+    NavigationComponent("Archive", Icons.Filled.Star, Icons.Outlined.Star, ScreenID.ARCHIVE),
+    NavigationComponent("Schedule", Icons.Filled.DateRange, Icons.Outlined.DateRange, ScreenID.SCHEDULE)
+)
+
+object ScreenID {
+    const val HOME = 0
+    const val CREATE = 1
+    const val ARCHIVE = 2
+    const val SCHEDULE = 3
+}
+
+@Composable
+fun NavigationComponents(
+    selectedScreenID: Int,
+    updateSelected: (screenID: Int, newTitle: String) -> Unit
+){
+    NavigationBar {
+        navigationList.forEach { navigation ->
+            NavigationBarItem(
+                label = { Text(navigation.title) },
+                icon = { navigation.iconStyled(selectedScreenID)},
+                selected = (selectedScreenID == navigation.screenID),
+                onClick = { updateSelected(navigation.screenID, navigation.title) }
+            )
+        }
+    }
+}
+
+@Composable
+fun ScreenComponents(selectedScreenID: Int){
+    when (selectedScreenID) {
+        ScreenID.HOME -> HomeScreen(name = "Andreas")
+        ScreenID.CREATE -> CreateScreen()
+        ScreenID.ARCHIVE -> ArchiveScreen()
+        ScreenID.SCHEDULE -> ScheduleScreen(name = "Schedule Page")
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NavigationScaffold(){
+    var selectedScreenID by remember { mutableStateOf( ScreenID.HOME) }
+    var title by remember {
+        mutableStateOf("HOME") //TODO tidy this
+    }
+    fun updatedSelectedID(id: Int, newTitle: String){
+        //Note: this is a convenience function
+        selectedScreenID = id
+        title = newTitle
+    }
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(title) })
+        },
+        bottomBar = {
+            NavigationComponents(
+                selectedScreenID,
+                updateSelected = ::updatedSelectedID)
+            // Note: reference to function using ::
+        },
+        content = {
+            Column ( modifier = Modifier
+                .padding(it)
+                .fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start)
+            {
+                ScreenComponents(selectedScreenID = selectedScreenID)
+            }
+        })
+}
+
+
+
+
