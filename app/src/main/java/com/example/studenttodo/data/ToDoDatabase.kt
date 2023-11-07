@@ -4,10 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.entities.TodoDetailsEntity
 
-@Database(entities = [ToDoEntity::class, TodoDetailsEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ToDoEntity::class, TodoDetailsEntity::class, ModuleEntity::class], version = 1, exportSchema = false)
 abstract class ToDoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDAO
 
