@@ -7,8 +7,9 @@ import androidx.room.RoomDatabase
 import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.entities.TodoDetailsEntity
+import com.example.studenttodo.entities.TimetableEntity
 
-@Database(entities = [ToDoEntity::class, TodoDetailsEntity::class, ModuleEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ToDoEntity::class, TodoDetailsEntity::class, ModuleEntity::class, TimetableEntity::class], version = 1, exportSchema = false)
 abstract class ToDoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDAO
 
