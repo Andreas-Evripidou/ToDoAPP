@@ -7,9 +7,14 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/vcs.xml
+/.idea/deploymentTargetDropDown.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+/.idea/deploymentTargetDropDown.xml
+/.idea/vcs.xml
+/.idea/inspectionProfiles/Project_Default.xml

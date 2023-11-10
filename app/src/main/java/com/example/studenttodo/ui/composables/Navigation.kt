@@ -1,4 +1,4 @@
-package com.example.studenttodo
+package com.example.studenttodo.ui.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -78,7 +78,7 @@ fun NavigationComponents(
 @Composable
 fun ScreenComponents(selectedScreenID: Int){
     when (selectedScreenID) {
-        ScreenID.HOME -> HomeScreen(name = "Andreas")
+        ScreenID.HOME -> HomeScreen()
         ScreenID.CREATE -> CreateScreen()
         ScreenID.ARCHIVE -> ArchiveScreen()
         ScreenID.SCHEDULE -> ScheduleScreen(name = "Schedule Page")
@@ -89,7 +89,7 @@ fun ScreenComponents(selectedScreenID: Int){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationScaffold(){
-    var selectedScreenID by remember { mutableStateOf( ScreenID.HOME) }
+    var selectedScreenID by remember { mutableStateOf(ScreenID.HOME) }
     var title by remember {
         mutableStateOf("HOME") //TODO tidy this
     }
