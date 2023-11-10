@@ -1,31 +1,64 @@
 package com.example.studenttodo
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.studenttodo.data.ToDoDatabase
-import com.example.studenttodo.entities.ToDoEntity
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.studenttodo.ui.theme.StudentToDoTheme
-import kotlinx.coroutines.launch
-import com.example.studenttodo.data.*
-import java.text.DateFormat
-import java.time.LocalDate
-import java.util.Date
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,57 +70,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    NavigationScaffold()
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column {
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
-        )
-        SaveButton()
-    }
-
-
-}
-
-@Composable
-fun SaveButton() {
-    val buttonScope = rememberCoroutineScope()
-    val dao = ToDoDatabase.getDB(LocalContext.current).todoDao()
-    fun insertOnClick() {
-        buttonScope.launch {
-            dao.insert(
-                ToDoEntity(
-                    title= "Do Text Assignment",
-                    reminderDate = "11/11/2023",
-                    reminderTime = "12:00",
-                    priority = "High",
-                    latitude = "53.378862598206425",
-                    longitude = "-1.479367317915664",
-                    range = "10",
-                    status = "New"
-                )
-            )
-        }
-    }
-    Row(modifier = Modifier.fillMaxWidth())
-    {
-        Text(text = "Test")
-        Button(onClick = ::insertOnClick) { Text(text = "Add Data") }
-    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun NavigationPreview() {
     StudentToDoTheme {
-        Greeting("Android")
+        NavigationScaffold()
     }
 }
