@@ -16,4 +16,12 @@ fun HomeScreen (name: String, modifier: Modifier = Modifier) {
             text = "Hello $name!",
             modifier = modifier
         )
+    (1..99).forEach {// once connected to database todo 1..datbase size
+        dispTasks()//(databseItem[])
     }
+    }
+
+@Composable
+fun dispTasks () {
+
+}
