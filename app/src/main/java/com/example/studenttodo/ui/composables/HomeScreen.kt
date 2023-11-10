@@ -1,4 +1,4 @@
-package com.example.studenttodo
+package com.example.studenttodo.ui.composables
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
