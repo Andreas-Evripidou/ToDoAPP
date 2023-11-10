@@ -1,4 +1,4 @@
-package com.example.studenttodo
+package com.example.studenttodo.ui.composables
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
