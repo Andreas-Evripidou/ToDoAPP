@@ -78,7 +78,7 @@ fun NavigationComponents(
 @Composable
 fun ScreenComponents(selectedScreenID: Int){
     when (selectedScreenID) {
-        ScreenID.HOME -> HomeScreen(name = "Andreas")
+        ScreenID.HOME -> HomeScreen()
         ScreenID.CREATE -> CreateScreen()
         ScreenID.ARCHIVE -> ArchiveScreen()
         ScreenID.SCHEDULE -> ScheduleScreen(name = "Schedule Page")
