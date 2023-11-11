@@ -5,9 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studenttodo.data.ToDoDatabase
 import com.example.studenttodo.entities.ToDoEntity
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMap
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 internal class ArchiveViewModel (app: Application): AndroidViewModel(app){
