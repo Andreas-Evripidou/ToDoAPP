@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -31,6 +32,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -105,6 +107,10 @@ fun ShowToDo(
     onDelete: (ToDoEntity) -> Unit,
     onRestore: (ToDoEntity) -> Unit
 ){
+    val openDialog = remember { mutableStateOf(false)  }
+    if (openDialog.value) {
+        DialogDelete(onDelete = onDelete, openDialog)
+    }
     Card (modifier = Modifier
         .background(MaterialTheme.colorScheme.background)
         .padding(12.dp)
@@ -143,14 +149,35 @@ fun ShowToDo(
             Box(modifier = Modifier
                 .width(50.dp)
                 .fillMaxHeight()
-                .clickable { onDelete(todo) }
+                .clickable { openDialog.value = true }
             ) {
                 Icon(Icons.Filled.Delete, contentDescription = "Delete", Modifier.fillMaxSize())
             }
+
         }
     }
 }
 
+@Composable
+fun DialogDelete(onDelete: (ToDoEntity) -> Unit, openDialog: MutableState<Boolean>){
+    AlertDialog(
+        title = {Text(text = "Delete ToDo")},
+        text = { Text(text = "Are you sure you want to permanent delete this ToDo? This action can not be restored")},
+        onDismissRequest = {openDialog.value = false},
+        dismissButton = {
+            Button(onClick = { openDialog.value = false})
+            {
+                Text(text = "Dismiss")
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onDelete })
+            {
+                Text(text = "Delete")
+            }
+        }
+    ) 
+}
 
 @Composable
 fun ArchiveScreen(){
