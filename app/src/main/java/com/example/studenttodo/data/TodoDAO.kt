@@ -36,4 +36,6 @@ interface TodoDAO {
     @Query("SELECT * from " + ToDoEntity.TABLE_NAME + " WHERE status = 1") // Todo:  + " ORDER BY priority ASC"
     fun getArchiveTodos(): Flow<List<ToDoEntity>>
 
+    @Query("SELECT * from " + ToDoEntity.TABLE_NAME + " WHERE status = 0")
+    fun getActiveTodos(): Flow<List<ToDoEntity>>
 }
