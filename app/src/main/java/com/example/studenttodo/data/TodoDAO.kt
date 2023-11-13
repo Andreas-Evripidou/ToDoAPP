@@ -36,6 +36,6 @@ interface TodoDAO {
 
 
 
-    @Query("SELECT * from " + ToDoEntity.TABLE_NAME + " WHERE status = 'New'")
+    @Query("SELECT * from " + ToDoEntity.TABLE_NAME + " WHERE status = 0")
     fun getActiveTodos(): Flow<List<ToDoEntity>>
 }

@@ -30,7 +30,14 @@ internal class HomeViewModel (app: Application): AndroidViewModel(app){
             priority = toDo.priority,
             longitude = toDo.longitude,
             range = toDo.range,
-            status = "Archive"
+            status = 1,
+            description = toDo.description,
+            picture = toDo.picture,
+            createdLatitude = toDo.createdLatitude,
+            createdLongitude = toDo.createdLongitude,
+            createdDate = toDo.createdDate,
+            createdTime = toDo.createdTime,
+            moduleCode = toDo.moduleCode
         )
 
         dao.update(toDo)
