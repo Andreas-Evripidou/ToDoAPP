@@ -42,6 +42,10 @@ import com.example.studenttodo.data.ToDoDatabase
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.viewmodels.HomeViewModel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 
 //@Composable
@@ -66,9 +70,9 @@ fun HomeScreen() {
             dao.insert(
                 ToDoEntity(
                     title= "Do Text Assignment",
-                    reminderDate = "11/11/2023",
-                    reminderTime = "12:00",
-                    priority = 3,
+                    reminderDate = LocalDate.parse("11/11/2023", DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    reminderTime = LocalTime.parse("13:10", DateTimeFormatter.ofPattern("HH:mm")),
+                    priority = 2,
                     latitude = "53.378862598206425",
                     longitude = "-1.479367317915664",
                     range = "10",
@@ -77,8 +81,6 @@ fun HomeScreen() {
                     picture = "Resources/1.jpg",
                     createdLatitude = "53.378862598206425",
                     createdLongitude = "-1.279367317915664",
-                    createdDate = "8/11/2023",
-                    createdTime = "13:00",
                     moduleCode = "COM3117",
                 )
             )

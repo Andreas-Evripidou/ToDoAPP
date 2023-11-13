@@ -1,18 +1,19 @@
 package com.example.studenttodo.entities
 
-import java.sql.Time
-import java.util.Date
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Entity(ToDoEntity.TABLE_NAME)
 data class ToDoEntity  (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val title: String,
-    val reminderDate: String, //Todo: LocalDate
-    val reminderTime: String, //Todo:Time
+    val reminderDate: LocalDate,
+    val reminderTime: LocalTime,
     val priority: Int,
     val latitude: String,
     val longitude: String,
@@ -22,11 +23,23 @@ data class ToDoEntity  (
     val picture: String, // Todo: handle Pictures
     val createdLatitude: String,
     val createdLongitude: String,
-    val createdDate: String, //Todo: LocalDate
-    val createdTime: String, //Todo: LocalTime
+    val createdDate: LocalDate = LocalDate.now(),
+    val createdTime: LocalTime = LocalTime.now(),
     val moduleCode: String, // Todo: Enum
 ) {
     companion object {
         const val TABLE_NAME = "Todos"
     }
+
+    val reminderDateFormatted : String
+        get() = reminderDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+    val createdDateFormatted :  String
+        get() = createdDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+    val createdTimeFormatted : String
+        get() = createdTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+
+    val reminderTimeFormatted : String
+        get() = reminderTime.format(DateTimeFormatter.ofPattern("HH:mm"))
 }
