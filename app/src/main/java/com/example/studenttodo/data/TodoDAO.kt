@@ -32,4 +32,10 @@ interface TodoDAO {
 //    fun getTodo(id: Int): ToDoEntity
     @Query("SELECT * from " + ToDoEntity.TABLE_NAME) // Todo:  + " ORDER BY priority ASC"
     fun getAllTodos(): Flow<List<ToDoEntity>>
+
+
+
+
+    @Query("SELECT * from " + ToDoEntity.TABLE_NAME + " WHERE status = 0")
+    fun getActiveTodos(): Flow<List<ToDoEntity>>
 }
