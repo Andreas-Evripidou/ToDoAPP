@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen() {
-    /* TODO displays a list of tasks
+    /*
     * TODO Colour based on priority ability to mark as completed
     * TODO Click to open page to update/view
     * TODO ordered by date/priority
@@ -105,12 +105,13 @@ fun dispTasks (
     ){
         Card (modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
+            .height(110.dp)
             .padding(12.dp)
         )
         {
             Row (modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
+                .height(80.dp)
             ) {
 
                 Box(modifier = Modifier
@@ -122,7 +123,8 @@ fun dispTasks (
                     Column(
                     ) {
                         Text(text = todo.title, style = MaterialTheme.typography.headlineMedium)
-                        Text(text = "module placeholder", style = MaterialTheme.typography.labelSmall)
+                        Text(text = "module placeholder")
+                        Text(text = "Due Date: ${todo.reminderDate}")
                     }
                 }
 

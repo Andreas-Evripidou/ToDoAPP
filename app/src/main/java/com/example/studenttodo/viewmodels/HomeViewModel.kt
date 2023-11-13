@@ -32,6 +32,8 @@ internal class HomeViewModel (app: Application): AndroidViewModel(app){
             range = toDo.range,
             status = "Archive"
         )
+
+        dao.update(toDo)
     }
 
 }
