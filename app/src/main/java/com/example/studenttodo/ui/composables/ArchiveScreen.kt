@@ -109,28 +109,29 @@ fun ShowToDo(
 ){
     val openDialog = remember { mutableStateOf(false)  }
     if (openDialog.value) {
-        DialogDelete(onDelete = onDelete, openDialog)
+        DialogDelete(onDelete = onDelete, todo, openDialog)
     }
     Card (modifier = Modifier
         .background(MaterialTheme.colorScheme.background)
-        .padding(12.dp)
+        .padding(bottom = 10.dp)
     )
     {
         Row (modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
+            .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
-
+            Spacer(modifier = Modifier.size(4.dp))
             Box(modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable { /* TODO */ }
+                .clickable { /* TODO add the ToDo information dialog*/ }
             ) {
                 Spacer(modifier = Modifier.size(16.dp))
                 Column(
                 ) {
                     Text(text = todo.title, style = MaterialTheme.typography.headlineMedium)
-                    Text(text = "module placeholder", style = MaterialTheme.typography.labelSmall)
+                    Text(text = "Module: ${todo.moduleCode}", style = MaterialTheme.typography.labelSmall)
                 }
             }
 
@@ -159,7 +160,7 @@ fun ShowToDo(
 }
 
 @Composable
-fun DialogDelete(onDelete: (ToDoEntity) -> Unit, openDialog: MutableState<Boolean>){
+fun DialogDelete(onDelete: (ToDoEntity) -> Unit, todo: ToDoEntity, openDialog: MutableState<Boolean>){
     AlertDialog(
         title = {Text(text = "Delete ToDo")},
         text = { Text(text = "Are you sure you want to permanent delete this ToDo? This action can not be restored")},
@@ -171,7 +172,9 @@ fun DialogDelete(onDelete: (ToDoEntity) -> Unit, openDialog: MutableState<Boolea
             }
         },
         confirmButton = {
-            Button(onClick = { onDelete })
+            Button(onClick = {
+                openDialog.value = false
+                onDelete(todo) })
             {
                 Text(text = "Delete")
             }
