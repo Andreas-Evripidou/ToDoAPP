@@ -141,7 +141,7 @@ fun dispTasks (
                     Column(
                     ) {
                         Text(text = todo.title, style = MaterialTheme.typography.headlineMedium)
-                        Text(text = "module placeholder")
+                        Text(text = "Module: ${todo.moduleCode}")
                         Text(text = "Due Date: ${todo.reminderDate}")
                     }
                 }
