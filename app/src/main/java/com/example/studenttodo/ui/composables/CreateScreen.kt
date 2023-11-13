@@ -28,8 +28,7 @@ import androidx.compose.ui.unit.dp
 fun CreateScreen() {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
