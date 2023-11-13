@@ -42,9 +42,6 @@ fun ViewEditScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
-        var taskname by remember { mutableStateOf("") }
-        var taskdescription by remember { mutableStateOf("") }
-        var locationradius by remember { mutableStateOf("") }
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
         var taskDateTime = LocalDateTime.now().format(formatter)
         var distanceRadiusPlaceholder = "1.5km"
