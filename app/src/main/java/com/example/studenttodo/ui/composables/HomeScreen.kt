@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.studenttodo.data.ToDoDatabase
 import com.example.studenttodo.entities.ToDoEntity
 import kotlinx.coroutines.launch
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 //    }
 
 @Composable
+@Preview
 fun HomeScreen() {
     val buttonScope = rememberCoroutineScope()
     val dao = ToDoDatabase.getDB(LocalContext.current).todoDao()
