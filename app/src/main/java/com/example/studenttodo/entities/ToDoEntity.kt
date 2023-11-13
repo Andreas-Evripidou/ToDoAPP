@@ -13,11 +13,18 @@ data class ToDoEntity  (
     val title: String,
     val reminderDate: String, //Todo: LocalDate
     val reminderTime: String, //Todo:Time
-    val priority: String, // Todo: Enum
+    val priority: Int,
     val latitude: String,
     val longitude: String,
     val range: String, // Todo: Maybe Float/Double
-    val status: String // Todo: Enum
+    val status: Int,
+    val description: String,
+    val picture: String, // Todo: handle Pictures
+    val createdLatitude: String,
+    val createdLongitude: String,
+    val createdDate: String, //Todo: LocalDate
+    val createdTime: String, //Todo: LocalTime
+    val moduleCode: String, // Todo: Enum
 ) {
     companion object {
         const val TABLE_NAME = "Todos"
