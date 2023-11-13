@@ -32,11 +32,18 @@ fun HomeScreen() {
                     title= "Do Text Assignment",
                     reminderDate = "11/11/2023",
                     reminderTime = "12:00",
-                    priority = "High",
+                    priority = 2,
                     latitude = "53.378862598206425",
                     longitude = "-1.479367317915664",
                     range = "10",
-                    status = "New"
+                    status = 0,
+                    description = "This is the description for to do my text assignment",
+                    picture = "Resources/1.jpg",
+                    createdLatitude = "53.378862598206425",
+                    createdLongitude = "-1.279367317915664",
+                    createdDate = "8/11/2023",
+                    createdTime = "13:00",
+                    moduleCode = "COM3117",
                 )
             )
         }
