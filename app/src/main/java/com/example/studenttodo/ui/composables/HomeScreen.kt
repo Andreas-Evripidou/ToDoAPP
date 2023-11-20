@@ -47,9 +47,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-
 //@Composable
-//fun Greeding (name: String, modifier: Modifier = Modifier) {
+//fun Greeting (name: String, modifier: Modifier = Modifier) {
 //        Text(
 //            text = "Hello $name!",
 //            modifier = modifier
@@ -59,9 +58,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen() {
     /*
-    * TODO Colour based on priority ability to mark as completed
+    *
     * TODO Click to open page to update/view
-    * TODO ordered by date/priority
+    *
     */
     val buttonScope = rememberCoroutineScope()
     val dao = ToDoDatabase.getDB(LocalContext.current).todoDao()
@@ -144,7 +143,7 @@ fun dispTasks (
                     ) {
                         Text(text = todo.title, style = MaterialTheme.typography.headlineMedium)
                         Text(text = "Module: ${todo.moduleCode}")
-                        Text(text = "Due Date: ${todo.reminderDate}")
+                        Text(text = "Due Date: ${todo.reminderDateFormatted}")
                     }
                 }
 
