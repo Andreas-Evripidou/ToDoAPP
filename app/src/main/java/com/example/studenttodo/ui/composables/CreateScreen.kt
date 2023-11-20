@@ -73,8 +73,17 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
                 }
             }
 
-
             Text("Reminder Date")
+            TextField(
+                value = reminderdate,
+                onValueChange = { reminderdate = it },
+                label = { Text("in format DD/MM/YYYY") })
+
+            Text("Reminder Time")
+            TextField(
+                value = remindertime,
+                onValueChange = { remindertime = it },
+                label = { Text("in format HH:MM") })
 
             Text("Take Picture (Not taught yet)")
 
