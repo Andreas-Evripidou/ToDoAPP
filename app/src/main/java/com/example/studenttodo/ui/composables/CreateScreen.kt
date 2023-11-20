@@ -9,6 +9,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -100,43 +101,52 @@ fun CreateScreen() {
             onValueChange = { locationradius = it },
             label = { Text("location radius") })
 
-
+        var showError by remember { mutableStateOf(false) }
         SubmitButton {
             var lDate = LocalDate.now()
             var lTime = LocalTime.now()
-            if (date.isNotEmpty() && time.isNotEmpty()) {
 
+
+            if (date.isNotEmpty() && time.isNotEmpty() && taskname.isNotEmpty() && taskdescription.isNotEmpty() && locationradius.isNotEmpty()) {
                 val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
                 lDate = LocalDate.parse(date, dateFormatter)
                 lTime = LocalTime.parse(time, timeFormatter)
+
+                val todo = ToDoEntity(
+                    title = taskname,
+                    reminderDate = lDate,
+                    reminderTime = lTime,
+                    priority = choices.indexOf(priority),
+                    status = 0,
+                    description = taskdescription,
+                    picture = "temp",
+                    latitude = "temp",
+                    longitude = "temp",
+                    range = locationradius,
+                    createdLatitude = "temp",
+                    createdLongitude = "temp",
+                    moduleCode = "temp"
+                )
+                viewModel.createToDo(todo)
+            } else {
+                showError = true
             }
-            else{
 
-            }
 
-            val todo = ToDoEntity(
-                title = taskname,
-                reminderDate = lDate,
-                reminderTime =  lTime,
-                priority = choices.indexOf(priority),
-                status = 0,
-                description = taskdescription,
-                picture = "temp",
-                latitude = "temp",
-                longitude = "temp",
-                range = locationradius,
-                createdLatitude = "temp",
-                createdLongitude = "temp",
-                moduleCode = "temp"
-
-            )
-            viewModel.createToDo(todo)
+        }
+        if (showError) {
+            displayError()
         }
     }
 
 }
+
+    @Composable
+    fun displayError(){
+        Text("Please fill in all fields", color = MaterialTheme.colorScheme.error)
+    }
 
     @Composable
     fun SubmitButton(onClick: ()-> Unit){
