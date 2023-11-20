@@ -5,16 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +45,7 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-        Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("Task Name:")
             TextField(
                 value = taskname,
@@ -79,21 +74,7 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             }
 
 
-
             Text("Reminder Date")
-            TextField(
-                value = reminderdate,
-                onValueChange = { reminderdate = it },
-                label = { Text("in format DD/MM/YYYY") })
-
-            Spacer(modifier = Modifier.size(10.dp))
-
-            Text("Reminder Time")
-            TextField(
-                value = remindertime,
-                onValueChange = { remindertime = it },
-                label = { Text("in format HH:MM") })
-
 
             Text("Take Picture (Not taught yet)")
 
@@ -111,9 +92,9 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             Spacer(modifier = Modifier.size(5.dp))
         }
 
-        Row (
+        Row(
             horizontalArrangement = Arrangement.Center
-        ){
+        ) {
             SubmitButton({
                 var lDate = LocalDate.now()
                 var lTime = LocalTime.now()
@@ -124,15 +105,14 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
 
                     lDate = LocalDate.parse(reminderdate, dateFormatter)
                     lTime = LocalTime.parse(remindertime, timeFormatter)
-                }
-                else{
+                } else {
 
                 }
 
                 val todo = ToDoEntity(
                     title = taskname,
-                    reminderDate = LocalDate.now(),
-                    reminderTime = LocalTime.now(),
+                    reminderDate = lDate,
+                    reminderTime = lTime,
                     priority = choices.indexOf(priority),
                     status = 0,
                     description = taskdescription,
@@ -150,17 +130,16 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             }, updateSelected = updateSelectedScreen)
         }
     }
-
 }
 
-    @Composable
-    fun SubmitButton(onClick: ()-> Unit, updateSelected: (screenID: Int, newTitle: String) -> Unit){
-        Button(
-            onClick = {
-            onClick()
-            updateSelected(ScreenID.HOME, navigationList[0].title)
-        }){
-            Text("Submit")
+@Composable
+fun SubmitButton(onClick: ()-> Unit, updateSelected: (screenID: Int, newTitle: String) -> Unit){
+    Button(
+        onClick = {
+        onClick()
+        updateSelected(ScreenID.HOME, navigationList[0].title)
+    }){
+        Text("Submit")
 
         }
 
