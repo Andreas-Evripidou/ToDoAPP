@@ -122,7 +122,6 @@ fun DialogDelete(onDelete: (ToDoEntity) -> Unit, todo: ToDoEntity, openDialog: M
 
 @Composable
 fun ArchiveScreen(){
-    val toDoScope = rememberCoroutineScope()
     val archiveViewModel = viewModel<ArchiveViewModel>()
     val todos by archiveViewModel.todos.collectAsState(initial = emptyList())
     Column  (modifier = Modifier

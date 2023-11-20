@@ -62,31 +62,6 @@ fun HomeScreen() {
     * TODO Click to open page to update/view
     *
     */
-    val buttonScope = rememberCoroutineScope()
-    val dao = ToDoDatabase.getDB(LocalContext.current).todoDao()
-    fun insertOnClick() {
-        buttonScope.launch {
-            dao.insert(
-                ToDoEntity(
-                    title= "Do Text Assignment",
-                    reminderDate = LocalDate.parse("11/11/2023", DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                    reminderTime = LocalTime.parse("13:10", DateTimeFormatter.ofPattern("HH:mm")),
-                    priority = 2,
-                    latitude = "53.378862598206425",
-                    longitude = "-1.479367317915664",
-                    range = "10",
-                    status = 1,
-                    description = "This is the description for to do my text assignment",
-                    picture = "Resources/1.jpg",
-                    createdLatitude = "53.378862598206425",
-                    createdLongitude = "-1.279367317915664",
-                    moduleCode = "COM3117",
-                )
-            )
-        }
-    }
-
-    val toDoScope = rememberCoroutineScope()
     val homeViewModel = viewModel<HomeViewModel>()
     val todos by homeViewModel.todos.collectAsState(initial = emptyList())
     Column  (modifier = Modifier
@@ -103,8 +78,6 @@ fun HomeScreen() {
             )
         }
 
-        Text(text = "Test")
-        Button(onClick = ::insertOnClick) { Text(text = "Add Data") }
     }
 }
 @Composable
@@ -123,16 +96,16 @@ fun dispTasks (
         }
         Card (modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
-            .height(106.dp)
-            .padding(12.dp)
+            .padding(bottom = 10.dp)
         )
         {
             Row (modifier = Modifier
-                .border(3.dp, backcolor)
+                .border(8.dp, backcolor)
                 .fillMaxWidth()
-                .height(80.dp)
+                .height(70.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer)
             ) {
-
+                Spacer(modifier = Modifier.size(4.dp))
                 Box(modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
