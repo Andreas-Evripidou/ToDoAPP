@@ -89,7 +89,7 @@ fun ScreenComponents(selectedScreenID: Int){
         ScreenID.HOME -> HomeScreen()
         ScreenID.CREATE -> CreateScreen()
         ScreenID.ARCHIVE -> ArchiveScreen()
-        ScreenID.SCHEDULE -> ScheduleScreen(name = "Schedule Page")
+        ScreenID.SCHEDULE -> GeoLocationScreen()
     }
 
 }
