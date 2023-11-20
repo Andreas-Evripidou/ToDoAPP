@@ -22,10 +22,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.studenttodo.entities.ToDoEntity
+import com.example.studenttodo.viewmodels.CreateViewModel
+import com.example.studenttodo.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen() {
+    val viewModel = viewModel<CreateViewModel>()
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -53,14 +58,31 @@ fun CreateScreen() {
         Text("Task Priority")
         choices.forEach { text ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = (text == priority), onClick = { text })
+                RadioButton(
+                    selected = (text == priority),
+                    onClick = { onSelected(text) }
+                )
                 Text(text)
             }
-
         }
 
 
-        Text("Due Date")
+
+
+
+        var reminderdate by remember { mutableStateOf("") }
+        var remindertime by remember { mutableStateOf("") }
+        Text("Reminder Date")
+        TextField(
+            value = reminderdate,
+            onValueChange = { reminderdate = it },
+            label = { Text("in format DD/MM/YYYY") })
+
+        Text("Reminder Time")
+        TextField(
+            value = remindertime,
+            onValueChange = { remindertime = it },
+            label = { Text("in format HH:MM") })
 
 
         Text("Take Picture (Not taught yet)")
@@ -71,10 +93,30 @@ fun CreateScreen() {
         Text("Location Radius")
         TextField(
             value = locationradius,
-            onValueChange = { taskdescription = it },
+            onValueChange = { locationradius = it },
             label = { Text("location radius") })
-        SubmitButton {
 
+
+        SubmitButton {
+            val todo = ToDoEntity(
+                title = taskname,
+                reminderDate = reminderdate,
+                reminderTime = remindertime,
+                priority = choices.indexOf(priority),
+                status = 0,
+                description = taskdescription,
+                picture = "temp",
+                latitude = "temp",
+                longitude = "temp",
+                range = locationradius,
+                createdLatitude = "temp",
+                createdLongitude = "temp",
+                createdDate = "temp",
+                createdTime = "temp",
+                moduleCode = "temp"
+
+            )
+            viewModel.createToDo(todo)
         }
     }
 
@@ -83,6 +125,7 @@ fun CreateScreen() {
     fun SubmitButton(onClick: ()-> Unit){
         Button(onClick = {onClick()}){
             Text("Submit")
+
         }
 
 }
