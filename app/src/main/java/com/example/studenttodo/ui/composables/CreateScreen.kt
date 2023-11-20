@@ -26,6 +26,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.viewmodels.CreateViewModel
 import com.example.studenttodo.viewmodels.HomeViewModel
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,18 +73,19 @@ fun CreateScreen() {
 
 
 
-        var reminderdate by remember { mutableStateOf("") }
-        var remindertime by remember { mutableStateOf("") }
+        var date by remember { mutableStateOf("") }
+        var time by remember { mutableStateOf("") }
+
         Text("Reminder Date")
         TextField(
-            value = reminderdate,
-            onValueChange = { reminderdate = it },
+            value = date,
+            onValueChange = { date = it },
             label = { Text("in format DD/MM/YYYY") })
 
         Text("Reminder Time")
         TextField(
-            value = remindertime,
-            onValueChange = { remindertime = it },
+            value = time,
+            onValueChange = { time = it },
             label = { Text("in format HH:MM") })
 
 
@@ -98,10 +102,24 @@ fun CreateScreen() {
 
 
         SubmitButton {
+            var lDate = LocalDate.now()
+            var lTime = LocalTime.now()
+            if (date.isNotEmpty() && time.isNotEmpty()) {
+
+                val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+                lDate = LocalDate.parse(date, dateFormatter)
+                lTime = LocalTime.parse(time, timeFormatter)
+            }
+            else{
+
+            }
+
             val todo = ToDoEntity(
                 title = taskname,
-                reminderDate = reminderdate,
-                reminderTime = remindertime,
+                reminderDate = lDate,
+                reminderTime =  lTime,
                 priority = choices.indexOf(priority),
                 status = 0,
                 description = taskdescription,
@@ -111,8 +129,6 @@ fun CreateScreen() {
                 range = locationradius,
                 createdLatitude = "temp",
                 createdLongitude = "temp",
-                createdDate = "temp",
-                createdTime = "temp",
                 moduleCode = "temp"
 
             )
@@ -121,6 +137,7 @@ fun CreateScreen() {
     }
 
 }
+
     @Composable
     fun SubmitButton(onClick: ()-> Unit){
         Button(onClick = {onClick()}){
