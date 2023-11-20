@@ -14,13 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,9 +30,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
@@ -59,21 +58,17 @@ fun ShowToDo(
             .height(60.dp)
             .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
-            Spacer(modifier = Modifier.size(4.dp))
             Box(modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
                 .clickable { /* TODO add the ToDo information dialog*/ }
             ) {
-                Spacer(modifier = Modifier.size(16.dp))
-                Column(
-                ) {
-                    Text(text = todo.title, style = MaterialTheme.typography.headlineMedium)
+
+                Column (modifier = Modifier.padding(start = 6.dp)){
+                    Text(text = todo.title, style = MaterialTheme.typography.headlineSmall)
                     Text(text = "Module: ${todo.moduleCode}", style = MaterialTheme.typography.labelSmall)
                 }
             }
-
-            Spacer(modifier = Modifier.size(16.dp))
 
             Box(modifier = Modifier
                 .width(50.dp)
@@ -112,7 +107,9 @@ fun DialogDelete(onDelete: (ToDoEntity) -> Unit, todo: ToDoEntity, openDialog: M
         confirmButton = {
             Button(onClick = {
                 openDialog.value = false
-                onDelete(todo) })
+                onDelete(todo) },
+                colors = ButtonDefaults.buttonColors( containerColor = Color.Red)
+            )
             {
                 Text(text = "Delete")
             }
@@ -125,8 +122,7 @@ fun ArchiveScreen(){
     val archiveViewModel = viewModel<ArchiveViewModel>()
     val todos by archiveViewModel.todos.collectAsState(initial = emptyList())
     Column  (modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState()),
+        .fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start)
     {
