@@ -97,6 +97,7 @@ fun CreateScreen() {
             onValueChange = { locationradius = it },
             label = { Text("location radius") })
 
+
         SubmitButton {
             val todo = ToDoEntity(
                 title = taskname,
@@ -114,6 +115,7 @@ fun CreateScreen() {
                 createdDate = "temp",
                 createdTime = "temp",
                 moduleCode = "temp"
+
             )
             viewModel.createToDo(todo)
         }
@@ -124,6 +126,7 @@ fun CreateScreen() {
     fun SubmitButton(onClick: ()-> Unit){
         Button(onClick = {onClick()}){
             Text("Submit")
+
         }
 
 }
