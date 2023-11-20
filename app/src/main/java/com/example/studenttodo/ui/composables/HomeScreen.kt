@@ -1,6 +1,7 @@
 package com.example.studenttodo.ui.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,9 +47,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-
 //@Composable
-//fun Greeding (name: String, modifier: Modifier = Modifier) {
+//fun Greeting (name: String, modifier: Modifier = Modifier) {
 //        Text(
 //            text = "Hello $name!",
 //            modifier = modifier
@@ -57,9 +58,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen() {
     /*
-    * TODO Colour based on priority ability to mark as completed
+    *
     * TODO Click to open page to update/view
-    * TODO ordered by date/priority
+    *
     */
     val buttonScope = rememberCoroutineScope()
     val dao = ToDoDatabase.getDB(LocalContext.current).todoDao()
@@ -112,13 +113,22 @@ fun dispTasks (
     onArchive: (ToDoEntity) -> Unit,
     onViewMore: (ToDoEntity) -> Unit
     ){
+        var backcolor = Color.Red //TODO place colors in theme/color.kt
+        if(todo.priority == 1){
+            backcolor = Color.Green
+        }else if (todo.priority == 2){
+            backcolor = Color.Yellow
+        }else{
+            backcolor = Color.Red //TODO tone down strength of red color
+        }
         Card (modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
-            .height(110.dp)
+            .height(106.dp)
             .padding(12.dp)
         )
         {
             Row (modifier = Modifier
+                .border(3.dp, backcolor)
                 .fillMaxWidth()
                 .height(80.dp)
             ) {
@@ -132,8 +142,8 @@ fun dispTasks (
                     Column(
                     ) {
                         Text(text = todo.title, style = MaterialTheme.typography.headlineMedium)
-                        Text(text = "module placeholder")
-                        Text(text = "Due Date: ${todo.reminderDate}")
+                        Text(text = "Module: ${todo.moduleCode}")
+                        Text(text = "Due Date: ${todo.reminderDateFormatted}")
                     }
                 }
 
