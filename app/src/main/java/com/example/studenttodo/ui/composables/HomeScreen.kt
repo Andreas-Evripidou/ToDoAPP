@@ -74,12 +74,12 @@ fun HomeScreen() {
                     latitude = "53.378862598206425",
                     longitude = "-1.479367317915664",
                     range = "10",
-                    status = 1,
+                    status = 0,
                     description = "This is the description for to do my text assignment",
                     picture = "Resources/1.jpg",
                     createdLatitude = "53.378862598206425",
                     createdLongitude = "-1.279367317915664",
-                    moduleCode = "COM3117",
+                    moduleCode = "COM3118",
                 )
             )
         }
