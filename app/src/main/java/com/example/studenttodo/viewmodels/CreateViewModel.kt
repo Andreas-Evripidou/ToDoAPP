@@ -13,6 +13,9 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
     val dao = ToDoDatabase.getDB(context).todoDao()
     val todos = dao.getActiveTodos()
 
+    val moduledao = ToDoDatabase.getDB(context).moduleDAO()
+    val modules = moduledao.getAll()
+
     fun createToDo (toDo: ToDoEntity) = viewModelScope.launch {
         dao.insert(toDo)
     }
