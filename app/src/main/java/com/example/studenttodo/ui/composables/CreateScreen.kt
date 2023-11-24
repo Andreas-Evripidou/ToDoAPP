@@ -79,14 +79,14 @@ fun CreateScreen() {
             value = taskname,
             onValueChange = { taskname = it },
             label = { Text("task title") })
-
+        Spacer(modifier = Modifier.height(16.dp))
         Text("Task Description")
         OutlinedTextField(
             value = taskdescription,
             onValueChange = { taskdescription = it },
             label = { Text("task description") })
 
-
+        Spacer(modifier = Modifier.height(16.dp))
         val choices = listOf("low", "medium", "high")
         val (priority, onSelected) = remember { mutableStateOf(choices[0]) }
         Text("Task Priority")
@@ -99,7 +99,7 @@ fun CreateScreen() {
                 Text(text)
             }
         }
-
+        Spacer(modifier = Modifier.height(16.dp))
 
 
 
@@ -210,16 +210,32 @@ fun CreateScreen() {
         Spacer(modifier = Modifier.height(16.dp))
         time = time.plus(enteredHours).plus(":").plus(enteredMinutes)
 
-        Text("Take Picture (Not taught yet)")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Pick Location")
+        var longitude by remember { mutableStateOf("") }
+        var latitude by remember { mutableStateOf("") }
 
-
-        Text("Pick Location (Not taught yet")
+        OutlinedTextField(
+            modifier = Modifier.width(120.dp),
+            value = longitude,
+            onValueChange = { longitude = it },
+            label = { Text("longitude") })
+        OutlinedTextField(
+            modifier = Modifier.width(120.dp),
+            value = latitude,
+            onValueChange = { latitude = it },
+            label = { Text("latitude") })
 
         Text("Location Radius")
         OutlinedTextField(
+            modifier = Modifier.width(120.dp),
             value = locationradius,
             onValueChange = { locationradius = it },
-            label = { Text("location radius") })
+            label = { Text("radius") })
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Take Picture (Not taught yet)")
+
+
 
         var showError by remember { mutableStateOf(false) }
         var showDateError by remember { mutableStateOf(false) }
@@ -254,8 +270,8 @@ fun CreateScreen() {
                     status = 0,
                     description = taskdescription,
                     picture = "temp",
-                    latitude = "temp",
-                    longitude = "temp",
+                    latitude = latitude,
+                    longitude = longitude,
                     range = locationradius,
                     createdLatitude = "temp",
                     createdLongitude = "temp",
