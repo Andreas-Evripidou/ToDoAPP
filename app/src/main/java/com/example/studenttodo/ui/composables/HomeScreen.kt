@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,13 +27,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
+import com.example.studenttodo.ui.composables.components.CustomDialogue
 import com.example.studenttodo.viewmodels.HomeViewModel
 
 
@@ -45,11 +51,13 @@ fun HomeScreen() {
     */
     val homeViewModel = viewModel<HomeViewModel>()
     val todos by homeViewModel.todos.collectAsState(initial = emptyList())
+
     Column  (modifier = Modifier
         .fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start,
     )
+
     {
         todos.forEach { todo ->
             dispTasks(
@@ -60,8 +68,10 @@ fun HomeScreen() {
             )
         }
 
+
     }
 }
+
 @Composable
 fun dispTasks (
     todo: ToDoEntity,
@@ -69,18 +79,27 @@ fun dispTasks (
     onViewMore: (ToDoEntity) -> Unit,
     borderColor: Int,
     ){
+        var showDialog by remember { mutableStateOf(false) }
+        if (showDialog) {
+        CustomDialogue(
+            onDismissRequest = {showDialog = false}
+        )
+        }
+
+
         Card (modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
-            .padding(bottom = 10.dp),
-            border = BorderStroke(1.dp, Color(borderColor))
+            .padding(bottom = 10.dp)
+            .clickable(onClick = {showDialog = true}),
+            border = BorderStroke(1.dp, Color(borderColor)),
         ) {
+
 
             Row (modifier = Modifier
                 .fillMaxWidth()
                 .height(70.dp)
                 .background(MaterialTheme.colorScheme.primaryContainer)
             ) {
-
                 Box(modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
@@ -103,5 +122,9 @@ fun dispTasks (
                     Icon(Icons.Filled.Done, contentDescription = "Done", Modifier.fillMaxSize())
                 }
             }
+
+
         }
+
 }
+

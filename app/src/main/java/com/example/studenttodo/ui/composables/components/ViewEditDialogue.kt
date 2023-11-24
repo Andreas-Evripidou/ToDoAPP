@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.SemanticsActions.Dismiss
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -16,38 +17,15 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun MyComposeScreen() {
-    var showDialog by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Button(
-            onClick = { showDialog = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(text = "Show Dialog")
-        }
-
-        if (showDialog) {
-            CustomDialogue(
-                onDismissRequest = { showDialog = false },
-                onConfirmation = { showDialog = false;},
-            )
-        }
-    }
-}
-
-@Composable
 fun CustomDialogue(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit
+    onDismissRequest: () -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+    if (showDialog) {
+        CustomDialogue(
+            onDismissRequest = { showDialog = false }
+        )
+    }
     Dialog(onDismissRequest = { onDismissRequest() }) {
 
         Column(
@@ -129,11 +107,13 @@ fun CustomDialogue(
             }
 
         }
-        @Composable
-        fun SubmitButton(onClick: () -> Unit) {
-            Button(onClick = { onClick() }) {
-                Text("Submit")
-            }
-        }
+    }
+}
+
+@Composable
+fun SubmitButton(onClick: () -> Unit) {
+    Button(onClick = { onClick() }) {
+        Text("Submit")
+        Dismiss
     }
 }

@@ -28,8 +28,7 @@ fun MyComposeScreen() {
 
         if (showDialog) {
             CustomDialogue(
-                onDismissRequest = { showDialog = false },
-                onConfirmation = { showDialog = true; /* your confirmation logic here */ },
+                onDismissRequest = { showDialog = false }
             )
         }
     }
