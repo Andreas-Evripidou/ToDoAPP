@@ -82,7 +82,7 @@ fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
                 ) {
                     val openDialog = remember { mutableStateOf(false)  }
                     if (openDialog.value) {
-                        DialogAdd(dao, openDialog, weekday)
+                        DialogAdd( openDialog, weekday)
                     }
                     Box(modifier = Modifier
                         .width(50.dp)
@@ -101,13 +101,11 @@ fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogAdd(dao: TimetableDAO, openDialog: MutableState<Boolean>, weekday: String){
+fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
     val viewModel = viewModel<ScheduleViewModel>()
     var moduleCode by remember { mutableStateOf("") }
-    //var location by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
-    val scheduleViewModel = viewModel<ScheduleViewModel>()
 
     AlertDialog(
         title = {Text(text = "Add a Day to Your Schedule")},
@@ -153,7 +151,6 @@ fun DialogAdd(dao: TimetableDAO, openDialog: MutableState<Boolean>, weekday: Str
             Button(onClick =
             {
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
                 val newStartTime = LocalTime.parse(startTime, timeFormatter)
                 val newEndTime = LocalTime.parse(endTime, timeFormatter)
                 val entry = TimetableEntity(
@@ -164,7 +161,6 @@ fun DialogAdd(dao: TimetableDAO, openDialog: MutableState<Boolean>, weekday: Str
                 )
                 viewModel.createTimetable(entry)
                 openDialog.value = false
-
             }
                 )
             {
@@ -174,8 +170,121 @@ fun DialogAdd(dao: TimetableDAO, openDialog: MutableState<Boolean>, weekday: Str
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogDelete(dao: TimetableDAO, openDialog: MutableState<Boolean>, time: TimetableEntity){
+fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
+    val viewModel = viewModel<ScheduleViewModel>()
+    var moduleCode by remember { mutableStateOf(time.moduleCode) }
+    var weekday by remember { mutableStateOf(time.day) }
+    var startTime by remember { mutableStateOf(time.startTime.toString()) }
+    var endTime by remember { mutableStateOf(time.endTime.toString()) }
+
+    AlertDialog(
+        title = {Text(text = "Add a Day to Your Schedule")},
+        text = {Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ){
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Module Code:")
+                TextField(
+                    value = moduleCode,
+                    onValueChange = { moduleCode = it },
+                    label = { Text("Module Code") })
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text("Start Time:")
+                TextField(
+                    value = startTime,
+                    onValueChange = { startTime = it },
+                    label = { Text("Start Time in HH:mm format") })
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text("End Time:")
+                TextField(
+                    value = endTime,
+                    onValueChange = { endTime = it },
+                    label = { Text("End Time in HH:mm format") })
+                Spacer(modifier = Modifier.size(10.dp))
+            }
+        }},
+        onDismissRequest = {openDialog.value = false},
+        dismissButton = {
+            Button(onClick = { openDialog.value = false})
+            {
+                Text(text = "Dismiss")
+            }
+        },
+        confirmButton = {
+            Button(onClick =
+            {
+                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+                val newStartTime = LocalTime.parse(startTime, timeFormatter)
+                val newEndTime = LocalTime.parse(endTime, timeFormatter)
+                val entry = TimetableEntity(
+                    id = time.id,
+                    day = weekday,
+                    startTime = newStartTime,
+                    endTime = newEndTime,
+                    moduleCode = moduleCode
+                )
+                viewModel.editTimetable(entry)
+                openDialog.value = false
+            })
+            {
+                Text(text = "Submit Changes")
+            }
+        }
+    )
+}
+
+
+@Composable
+fun DialogView(openDialog: MutableState<Boolean>, openDialogEdit: MutableState<Boolean>, time: TimetableEntity ){
+    AlertDialog(
+        title = {Text(text = "Lecture")},
+        text = {Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ){
+            Text(
+                text = "Module Code: \n ${time.moduleCode} ",
+                modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "Time: \n ${time.startTime} - ${time.endTime}",
+                modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall)
+
+        }}
+        ,
+        onDismissRequest = {openDialog.value = false},
+        dismissButton = {
+            Button(onClick = { openDialog.value = false})
+            {
+                Text(text = "Dismiss")
+            }
+        },
+        confirmButton = {
+            Button(onClick =
+            {
+                openDialogEdit.value = true //Bring the user to a part that allows them to edit the details
+                openDialog.value = false
+            }
+            )
+            {
+                Text(text = "Edit")
+            }
+        }
+    )
+}
+
+//This is used to delete a timetable entry from the database
+@Composable
+fun DialogDelete( openDialog: MutableState<Boolean>, time: TimetableEntity){
+    val viewModel = viewModel<ScheduleViewModel>()
     AlertDialog(
         title = {Text(text = "Are you sure you want to delete the following lecture from your schedule?")},
         text = {Column(
@@ -204,7 +313,8 @@ fun DialogDelete(dao: TimetableDAO, openDialog: MutableState<Boolean>, time: Tim
         confirmButton = {
             Button(onClick =
             {
-                /*TODO*/ //Change the status of the viewed timetable
+                //Currently deletes the timetable of it outright
+                viewModel.deleteTimetable(time)
                 openDialog.value = false
             }
             )
@@ -217,60 +327,20 @@ fun DialogDelete(dao: TimetableDAO, openDialog: MutableState<Boolean>, time: Tim
 }
 
 @Composable
-fun DialogView(dao: TimetableDAO, openDialog: MutableState<Boolean>,time: TimetableEntity ){
-    AlertDialog(
-        title = {Text(text = "Lecture")},
-        text = {Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-        ){
-            Text(
-                text = "Module Code: \n ${time.moduleCode} ",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
-            Text(
-                text = "Time: \n ${time.startTime} - ${time.endTime}",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
-            Text(
-                text = "Location: \n",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
-
-        }}
-        ,
-        onDismissRequest = {openDialog.value = false},
-        dismissButton = {
-            Button(onClick = { openDialog.value = false})
-            {
-                Text(text = "Dismiss")
-            }
-        },
-        confirmButton = {
-            Button(onClick =
-            {
-                //Bring the user to a part that allows them to edit the details
-                openDialog.value = false
-            }
-            )
-            {
-                Text(text = "Edit")
-            }
-        }
-    )
-}
-
-@Composable
 fun CreateButtons(
     time: TimetableEntity,
     dao : TimetableDAO) {
     val openDialogView = remember { mutableStateOf(false)  }
     val openDialogDelete = remember { mutableStateOf(false)  }
+    val openDialogEdit = remember{ mutableStateOf(false)  }
     if (openDialogView.value) {
-        DialogView(dao, openDialogView, time)
+        DialogView(openDialogView,openDialogEdit, time) //This brings up the view alert
     }
     if (openDialogDelete.value) {
-        DialogDelete(dao, openDialogDelete, time)
+        DialogDelete(openDialogDelete, time) //This brings up the delete alert
+    }
+    if (openDialogEdit.value) {
+        DialogEdit( openDialog = openDialogEdit, time = time) //This brings up the edit alert
     }
     Card(
         modifier = Modifier
@@ -295,7 +365,6 @@ fun CreateButtons(
                 Column {
                     Text(text = time.moduleCode, style = MaterialTheme.typography.headlineSmall)
                     Text(text = "Time: ${time.startTime} - ${time.endTime}")
-                    Text(text = "Location:  ")
                 }
             }
 

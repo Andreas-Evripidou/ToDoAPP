@@ -19,7 +19,7 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
     fun viewMore (timetable: TimetableEntity) = viewModelScope.launch {
         //TODO View more details
     }
-    fun editToDo(timetable: TimetableEntity) = viewModelScope.launch {
+    fun editTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         val timetable = TimetableEntity(
             id = timetable.id,
             day = timetable.day,
@@ -31,6 +31,9 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
     }
     fun createTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         dao.insert(timetable)
+    }
+    fun deleteTimetable(timetable: TimetableEntity) = viewModelScope.launch {
+        dao.delete(timetable)
     }
 
 
