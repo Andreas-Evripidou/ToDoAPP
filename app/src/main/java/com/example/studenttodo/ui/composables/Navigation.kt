@@ -96,7 +96,7 @@ fun ScreenComponents(
 ){
     when (selectedScreenID) {
         ScreenID.HOME -> HomeScreen()
-        ScreenID.CREATE -> CreateScreen(updateSelectedScreen = updateSelected)
+        ScreenID.CREATE -> CreateScreen()
         ScreenID.ARCHIVE -> ArchiveScreen()
         ScreenID.SCHEDULE -> ScheduleScreen(name = "Schedule Page")
     }

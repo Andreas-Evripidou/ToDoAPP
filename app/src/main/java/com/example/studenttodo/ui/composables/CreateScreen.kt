@@ -58,23 +58,17 @@ fun displayError(){
 fun displayDateTimeError(){
     Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit) {
+fun CreateScreen() {
     val viewModel = viewModel<CreateViewModel>()
-    var taskname by remember { mutableStateOf("") }
-    var taskdescription by remember { mutableStateOf("") }
-    var locationradius by remember { mutableStateOf("") }
-    val choices = listOf("low", "medium", "high")
-    val (priority, onSelected) = remember { mutableStateOf(choices[0]) }
-    var reminderdate by remember { mutableStateOf("") }
-    var remindertime by remember { mutableStateOf("") }
-
     Column(
         modifier = Modifier
             .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+
+    verticalArrangement = Arrangement.Center,
+    horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
         var taskname by remember { mutableStateOf("") }
@@ -92,51 +86,22 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             onValueChange = { taskdescription = it },
             label = { Text("task description") })
 
+
         val choices = listOf("low", "medium", "high")
         val (priority, onSelected) = remember { mutableStateOf(choices[0]) }
         Text("Task Priority")
         choices.forEach { text ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                choices.forEach { text ->
-                    RadioButton(
-                        selected = (text == priority),
-                        onClick = { onSelected(text) }
-                    )
-                    Text(text)
-                }
+                RadioButton(
+                    selected = (text == priority),
+                    onClick = { onSelected(text) }
+                )
+                Text(text)
             }
-
-            Text("Reminder Date")
-            TextField(
-                value = reminderdate,
-                onValueChange = { reminderdate = it },
-                label = { Text("in format DD/MM/YYYY") })
-
-            Text("Reminder Time")
-            TextField(
-                value = remindertime,
-                onValueChange = { remindertime = it },
-                label = { Text("in format HH:MM") })
-
-            Text("Take Picture (Not taught yet)")
-
-
-            Text("Pick Location (Not taught yet")
-
-            Spacer(modifier = Modifier.size(10.dp))
-
-            Text("Location Radius:")
-            TextField(
-                value = locationradius,
-                onValueChange = { locationradius = it },
-                label = { Text("location radius") })
-
-            Spacer(modifier = Modifier.size(5.dp))
         }
 
-        Row(
-            horizontalArrangement = Arrangement.Center
-        ) {
+
+
 
 
         var date by remember { mutableStateOf("") }
@@ -146,7 +111,6 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
         var day by remember { mutableStateOf("") }
         var month by remember { mutableStateOf("") }
         var year by remember { mutableStateOf("") }
-
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -166,7 +130,6 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             )
 
             Text("/")
-
 
             OutlinedTextField(
                 modifier = Modifier.width(70.dp),
@@ -204,6 +167,7 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
         var enteredHours by remember { mutableStateOf("") }
         var enteredMinutes by remember { mutableStateOf("") }
         Text("Reminder Time")
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -267,16 +231,17 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             if (date.isNotEmpty() && time.isNotEmpty() && taskname.isNotEmpty() && taskdescription.isNotEmpty() && locationradius.isNotEmpty()) {
 
                 val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
                 try {
                     lDate = LocalDate.parse(date, dateFormatter)
                     lTime = LocalTime.parse(time, timeFormatter)
 
                 } catch (e: DateTimeParseException) {
+                    // Error handling: Print an error message or take appropriate action
 
                     showDateError = true
                 }
+
 
 
 
@@ -284,6 +249,7 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
                     title = taskname,
                     reminderDate = lDate,
                     reminderTime = lTime,
+
                     priority = choices.indexOf(priority)+1,
                     status = 0,
                     description = taskdescription,
@@ -310,8 +276,8 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             displayDateTimeError()
         }
     }
-}}
 
+}
 
 
 
