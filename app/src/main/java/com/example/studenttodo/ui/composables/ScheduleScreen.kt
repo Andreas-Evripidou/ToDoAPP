@@ -1,58 +1,315 @@
 package com.example.studenttodo.ui.composables
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.studenttodo.data.TimetableDAO
+import com.example.studenttodo.data.ToDoDatabase
+import com.example.studenttodo.entities.TimetableEntity
+import com.example.studenttodo.viewmodels.ScheduleViewModel
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
 
 @Composable
 fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
+    val dao = ToDoDatabase.getDB(LocalContext.current).timetableDAO()
+    val times by viewModel<ScheduleViewModel>().timetable.collectAsState(initial = emptyList())
+    val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(10.dp),
-        horizontalAlignment = Alignment.Start
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top
 
-    ) {
+        ) {
         //This is the day of the week, repeat for each work day of the week
-        Text(
-            text = "Day Of The Week",
-            modifier = modifier
-        )
-        // This the elevated button that shows the lesson. This repeats for every lesson in that day
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(10.dp),
-            horizontalArrangement = Arrangement.Center
+            weekdays.forEach { weekday ->
+                Text(
+                    text = weekday,
+                    modifier = modifier,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                //This repeats for each data value matching the current day of the week
+                val current = times.filter {it.day == weekday}
+                current.forEach { time ->
+                    CreateButtons(
+                        time = time,
+                        dao = dao)}
 
-        ) {
-            ElevatedButton( onClick = {/*TODO*/}){
-                Text(text= " Module Name: $name!                " +
-                        " \n Module Code:                       " +
-                        " \n Time:                              " +
-                        "\n Location:                           ")}
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    val openDialog = remember { mutableStateOf(false)  }
+                    if (openDialog.value) {
+                        DialogAdd(dao, openDialog, weekday)
+                    }
+                    Box(modifier = Modifier
+                        .width(50.dp)
+                        .clickable { openDialog.value = true }
+                    ) {
+                        Icon(
+                            Icons.Filled.AddCircle,
+                            contentDescription = "Add"
+                        )
+                    }
+                }
 
+                }
         }
-        Spacer(modifier = Modifier.height(5.dp) )
+}
 
-        //This is the icon part underneath the button weekly lesson button. Only show one per day
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DialogAdd(dao: TimetableDAO, openDialog: MutableState<Boolean>, weekday: String){
+    val viewModel = viewModel<ScheduleViewModel>()
+    var moduleCode by remember { mutableStateOf("") }
+    //var location by remember { mutableStateOf("") }
+    var startTime by remember { mutableStateOf("") }
+    var endTime by remember { mutableStateOf("") }
+    val scheduleViewModel = viewModel<ScheduleViewModel>()
+
+    AlertDialog(
+        title = {Text(text = "Add a Day to Your Schedule")},
+        text = {Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ){
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Module Code:")
+                TextField(
+                    value = moduleCode,
+                    onValueChange = { moduleCode = it },
+                    label = { Text("Module Code") })
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text("Start Time:")
+                TextField(
+                    value = startTime,
+                    onValueChange = { startTime = it },
+                    label = { Text("Start Time in HH:mm format") })
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text("End Time:")
+                TextField(
+                    value = endTime,
+                    onValueChange = { endTime = it },
+                    label = { Text("End Time in HH:mm format") })
+
+                Spacer(modifier = Modifier.size(10.dp))
+            }
+
+        }},
+        onDismissRequest = {openDialog.value = false},
+        dismissButton = {
+            Button(onClick = { openDialog.value = false})
+            {
+                Text(text = "Dismiss")
+            }
+        },
+        confirmButton = {
+            Button(onClick =
+            {
+                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+                val newStartTime = LocalTime.parse(startTime, timeFormatter)
+                val newEndTime = LocalTime.parse(endTime, timeFormatter)
+                val entry = TimetableEntity(
+                    day = weekday,
+                    startTime = newStartTime,
+                    endTime = newEndTime,
+                    moduleCode = moduleCode
+                )
+                viewModel.createTimetable(entry)
+                openDialog.value = false
+
+            }
+                )
+            {
+                Text(text = "Add")
+            }
+        }
+    )
+}
+
+@Composable
+fun DialogDelete(dao: TimetableDAO, openDialog: MutableState<Boolean>, time: TimetableEntity){
+    AlertDialog(
+        title = {Text(text = "Are you sure you want to delete the following lecture from your schedule?")},
+        text = {Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ){
+            Text(
+                text = "Module Code: \n ${time.moduleCode} ",
+                modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "Time: \n ${time.startTime} - ${time.endTime}",
+                modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall)
+
+        }}
+        ,
+        onDismissRequest = {openDialog.value = false},
+        dismissButton = {
+            Button(onClick = { openDialog.value = false })
+            {
+                Text(text = "Dismiss")
+            }
+        },
+
+        confirmButton = {
+            Button(onClick =
+            {
+                /*TODO*/ //Change the status of the viewed timetable
+                openDialog.value = false
+            }
+            )
+            {
+                Text(text = "Delete")
+            }
+        }
+
+    )
+}
+
+@Composable
+fun DialogView(dao: TimetableDAO, openDialog: MutableState<Boolean>,time: TimetableEntity ){
+    AlertDialog(
+        title = {Text(text = "Lecture")},
+        text = {Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ){
+            Text(
+                text = "Module Code: \n ${time.moduleCode} ",
+                modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "Time: \n ${time.startTime} - ${time.endTime}",
+                modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = "Location: \n",
+                modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall)
+
+        }}
+        ,
+        onDismissRequest = {openDialog.value = false},
+        dismissButton = {
+            Button(onClick = { openDialog.value = false})
+            {
+                Text(text = "Dismiss")
+            }
+        },
+        confirmButton = {
+            Button(onClick =
+            {
+                //Bring the user to a part that allows them to edit the details
+                openDialog.value = false
+            }
+            )
+            {
+                Text(text = "Edit")
+            }
+        }
+    )
+}
+
+@Composable
+fun CreateButtons(
+    time: TimetableEntity,
+    dao : TimetableDAO) {
+    val openDialogView = remember { mutableStateOf(false)  }
+    val openDialogDelete = remember { mutableStateOf(false)  }
+    if (openDialogView.value) {
+        DialogView(dao, openDialogView, time)
+    }
+    if (openDialogDelete.value) {
+        DialogDelete(dao, openDialogDelete, time)
+    }
+    Card(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .height(110.dp)
+            .padding(12.dp)
+    )
+    {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(5.dp),
-            horizontalArrangement = Arrangement.Center
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp)
+                .height(90.dp)
         ) {
-           IconButton(onClick = {/*TODO*/}){ Icon(Icons.Filled.AddCircle, contentDescription = "Add")}
+
+            Box(modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clickable { openDialogView.value = true } //This is to let the user view the entire module data
+            ) {
+                Spacer(modifier = Modifier.size(16.dp))
+                Column {
+                    Text(text = time.moduleCode, style = MaterialTheme.typography.headlineSmall)
+                    Text(text = "Time: ${time.startTime} - ${time.endTime}")
+                    Text(text = "Location:  ")
+                }
+            }
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            Box( modifier = Modifier
+                .width(40.dp)
+                .fillMaxHeight()
+                .clickable { openDialogDelete.value = true }// This will remove the module from the user's view
+            ) {
+                Icon(Icons.Filled.Delete, contentDescription = "Delete", Modifier.fillMaxSize())
+            }
         }
     }
+
 }
+
