@@ -6,14 +6,15 @@ import android.util.Log
 import com.example.studenttodo.viewmodels.LocationViewModel
 
 object GeoLocationService: LocationListener {
-    var LocationViewModel: LocationViewModel? = null
+    var locationViewModel: LocationViewModel? = null
+
     override fun onLocationChanged(newLocation: Location) {
-        LocationViewModel?.updateLocation(newLocation)
+        locationViewModel?.updateLocation( newLocation )
         Log.i("geolocation", "Location updated")
     }
 
     fun updateLatestLocation(latestLocation: Location) {
-        LocationViewModel?.updateLocation(latestLocation)
+        locationViewModel?.updateLocation( latestLocation )
         Log.i("geolocation", "Location set to latest")
     }
 }

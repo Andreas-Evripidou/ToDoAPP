@@ -2,51 +2,58 @@ package com.example.studenttodo.ui.composables
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.services.GeoLocationService
-import com.example.studenttodo.ui.theme.StudentToDoTheme
 import com.example.studenttodo.viewmodels.LocationViewModel
 
 
 @Composable
 fun GeoLocationScreen(){
+    Log.i("geolocation", "Location Screen")
     val locationViewModel = viewModel<LocationViewModel>()
-    GeoLocationService.LocationViewModel = locationViewModel
-    val context = LocalContext.current
-    val locationManager = context.getSystemService(Context. LOCATION_SERVICE) as LocationManager
-    if (ActivityCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION)
-        == PackageManager.PERMISSION_GRANTED) {
-        val location =
-            locationManager. getLastKnownLocation(LocationManager.GPS_PROVIDER)
+
+    if (locationViewModel.valid){
         CoarseLocation(
-            location?.latitude.toString(),
-            location?.longitude.toString())
+            lat = locationViewModel.latitude.toString(),
+            lon = locationViewModel.longitude.toString()
+        )
     } else {
-        Text("COARSE LOCATION UNAVAILABLE")
+        Text("LOCATION UNAVAILABLE")
     }
+}
+
+fun openMaps(context: Context, lat: String, lon: String) {
+    val intentUri = Uri.parse("geo:$lat,$lon?q=$lat,$lon(5 m)")
+    val intent = Intent(Intent.ACTION_VIEW, intentUri)
+    intent.setPackage("com.google.android.apps.maps")
+    startActivity(context, intent, null)
 }
 
 @Composable
 fun CoarseLocation(lat: String, lon: String) {
+    val context = LocalContext.current
     Column {
         Text("Latitude: $lat")
         Text("Longitude: $lon")
+        Button(
+            onClick = {
+                openMaps(context,lat,lon)
+            }) { Text(text = "Open Map")}
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    StudentToDoTheme {
-        CoarseLocation("99.99", "-99.99")
-    }
+    
 }
