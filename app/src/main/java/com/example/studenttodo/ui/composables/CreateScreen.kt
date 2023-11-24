@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,6 +38,26 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
+@Composable
+fun SubmitButton(onClick: ()-> Unit){
+    Button(
+        onClick = {
+            onClick()
+
+        }){
+        Text("Submit")
+
+    }
+
+}
+@Composable
+fun displayError(){
+    Text("Please fill in all fields", color = MaterialTheme.colorScheme.error)
+}
+@Composable
+fun displayDateTimeError(){
+    Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit) {
@@ -51,8 +72,7 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -117,19 +137,7 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
         Row(
             horizontalArrangement = Arrangement.Center
         ) {
-            SubmitButton({
-                var lDate = LocalDate.now()
-                var lTime = LocalTime.now()
-                if (reminderdate.isNotEmpty() && remindertime.isNotEmpty()) {
 
-                    val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-                    lDate = LocalDate.parse(reminderdate, dateFormatter)
-                    lTime = LocalTime.parse(remindertime, timeFormatter)
-                } else {
-
-                }
 
         var date by remember { mutableStateOf("") }
         var time by remember { mutableStateOf("") }
@@ -302,36 +310,9 @@ fun CreateScreen(updateSelectedScreen: (screenID: Int, newTitle: String) -> Unit
             displayDateTimeError()
         }
     }
-}
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DatePickerDemo() {
+}}
 
-}
 
-    @Composable
-    fun displayError(){
-        Text("Please fill in all fields", color = MaterialTheme.colorScheme.error)
-    }
-    @Composable
-    fun displayDateTimeError(){
-        Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
-    }
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TimePickerDemo() {
 
-}
 
-@Composable
-fun SubmitButton(onClick: ()-> Unit, updateSelected: (screenID: Int, newTitle: String) -> Unit){
-    Button(
-        onClick = {
-        onClick()
-        updateSelected(ScreenID.HOME, navigationList[0].title)
-    }){
-        Text("Submit")
 
-        }
-
-}
