@@ -4,15 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
-import com.example.studenttodo.entities.TodoDetailsEntity
 import com.example.studenttodo.entities.TimetableEntity
 
-@Database(entities = [ToDoEntity::class, TodoDetailsEntity::class, ModuleEntity::class, TimetableEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ToDoEntity::class,  ModuleEntity::class, TimetableEntity::class], version = 6, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class ToDoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDAO
-    abstract fun todoDetailsDao(): TodoDetailsDAO
+
     abstract fun moduleDAO(): ModuleDAO
     abstract fun timetableDAO(): TimetableDAO
 
