@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,7 +46,8 @@ fun CreateScreen() {
     val viewModel = viewModel<CreateViewModel>()
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -64,7 +67,7 @@ fun CreateScreen() {
             onValueChange = { taskdescription = it },
             label = { Text("task description") })
 
-        val choices = listOf("high", "medium", "low")
+        val choices = listOf("low", "medium", "high")
         val (priority, onSelected) = remember { mutableStateOf(choices[0]) }
         Text("Task Priority")
         choices.forEach { text ->
@@ -143,12 +146,50 @@ fun CreateScreen() {
         date = day.plus("/").plus(month).plus("/").plus(year)
         Spacer(modifier = Modifier.height(16.dp))
 
+        var enteredHours by remember { mutableStateOf("") }
+        var enteredMinutes by remember { mutableStateOf("") }
         Text("Reminder Time")
-        OutlinedTextField(
-            value = time,
-            onValueChange = { time = it },
-            label = { Text("in format HH:MM") })
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Hours Text Field
+            OutlinedTextField(
+                modifier = Modifier.width(70.dp),
+                value = enteredHours,
+                onValueChange = { newInput ->
 
+                    if (newInput.toIntOrNull() in 0..24) {
+                        enteredHours = newInput.take(2)
+                    }
+                },
+                label = { Text("HH") },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number
+                )
+            )
+
+            Text(":")
+
+
+            OutlinedTextField(
+                modifier = Modifier.width(70.dp),
+                value = enteredMinutes,
+                onValueChange = { newInput ->
+
+                    if (newInput.toIntOrNull() in 0..59) {
+                        enteredMinutes = newInput.take(2)
+                    }
+                },
+                label = { Text("MM") },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        time = time.plus(enteredHours).plus(":").plus(enteredMinutes)
 
         Text("Take Picture (Not taught yet)")
 
@@ -175,20 +216,20 @@ fun CreateScreen() {
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
                 try {
                     lDate = LocalDate.parse(date, dateFormatter)
+                    lTime = LocalTime.parse(time, timeFormatter)
 
                 } catch (e: DateTimeParseException) {
-                    // Error handling: Print an error message or take appropriate action
 
                     showDateError = true
                 }
 
-                lTime = LocalTime.parse(time, timeFormatter)
+
 
                 val todo = ToDoEntity(
                     title = taskname,
                     reminderDate = lDate,
                     reminderTime = lTime,
-                    priority = choices.indexOf(priority),
+                    priority = choices.indexOf(priority)+1,
                     status = 0,
                     description = taskdescription,
                     picture = "temp",
@@ -200,6 +241,7 @@ fun CreateScreen() {
                     moduleCode = "temp"
                 )
                 viewModel.createToDo(todo)
+
             } else {
                 showError = true
             }
@@ -229,6 +271,11 @@ fun DatePickerDemo() {
     fun displayDateTimeError(){
         Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
     }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDemo() {
+
+}
 
     @Composable
     fun SubmitButton(onClick: ()-> Unit){
