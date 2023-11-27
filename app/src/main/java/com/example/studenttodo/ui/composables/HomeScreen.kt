@@ -51,6 +51,7 @@ fun HomeScreen() {
     */
     val homeViewModel = viewModel<HomeViewModel>()
     val todos by homeViewModel.todos.collectAsState(initial = emptyList())
+    val showViewEdit = remember {mutableStateOf(false)}
 
     Column  (modifier = Modifier
         .fillMaxSize(),
@@ -67,8 +68,6 @@ fun HomeScreen() {
                 onViewMore = {homeViewModel.viewMore(it)}
             )
         }
-
-
     }
 }
 
@@ -79,18 +78,10 @@ fun dispTasks (
     onViewMore: (ToDoEntity) -> Unit,
     borderColor: Int,
     ){
-        var showDialog by remember { mutableStateOf(false) }
-        if (showDialog) {
-        CustomDialogue(
-            onDismissRequest = {showDialog = false}
-        )
-        }
-
-
+    val openDialog = remember { mutableStateOf(false)  }
         Card (modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
-            .padding(bottom = 10.dp)
-            .clickable(onClick = {showDialog = true}),
+            .padding(bottom = 10.dp),
             border = BorderStroke(1.dp, Color(borderColor)),
         ) {
 
@@ -103,7 +94,7 @@ fun dispTasks (
                 Box(modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .clickable { onViewMore(todo) }
+                    .clickable { openDialog.value = true }
                 ) {
                     Column (modifier = Modifier.padding(start = 6.dp) ){
                         Text(text = todo.title, style = MaterialTheme.typography.headlineSmall)
@@ -123,8 +114,12 @@ fun dispTasks (
                 }
             }
 
-
+            if (openDialog.value) {
+                CustomDialogue(
+                    onDismissRequest = { openDialog.value = false }
+                )
+            }
         }
+    }
 
-}
 
