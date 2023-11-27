@@ -36,20 +36,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.studenttodo.data.TimetableDAO
-import com.example.studenttodo.data.ToDoDatabase
 import com.example.studenttodo.entities.TimetableEntity
 import com.example.studenttodo.viewmodels.ScheduleViewModel
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 
 @Composable
 fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
-    val dao = ToDoDatabase.getDB(LocalContext.current).timetableDAO()
     val times by viewModel<ScheduleViewModel>().timetable.collectAsState(initial = emptyList())
     val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 
@@ -71,8 +68,7 @@ fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
                 val current = times.filter {it.day == weekday}
                 current.forEach { time ->
                     CreateButtons(
-                        time = time,
-                        dao = dao)}
+                        time = time)}
 
                 Row(
                     modifier = Modifier
@@ -99,6 +95,7 @@ fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
         }
 }
 
+//Make the module code a drop down and link the Module Title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
@@ -106,6 +103,8 @@ fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
     var moduleCode by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+    var showDateError by remember { mutableStateOf(false) }
 
     AlertDialog(
         title = {Text(text = "Add a Day to Your Schedule")},
@@ -149,36 +148,63 @@ fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
         },
         confirmButton = {
             Button(onClick =
-            {
+            {if (weekday.isNotEmpty() && startTime.isNotEmpty() && endTime.isNotEmpty() && moduleCode.isNotEmpty()) {
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-                val newStartTime = LocalTime.parse(startTime, timeFormatter)
-                val newEndTime = LocalTime.parse(endTime, timeFormatter)
-                val entry = TimetableEntity(
-                    day = weekday,
-                    startTime = newStartTime,
-                    endTime = newEndTime,
-                    moduleCode = moduleCode
-                )
-                viewModel.createTimetable(entry)
-                openDialog.value = false
+                try {
+                    val newStartTime = LocalTime.parse(startTime, timeFormatter)
+                    val newEndTime = LocalTime.parse(endTime, timeFormatter)
+                    val entry = TimetableEntity(
+                        day = weekday,
+                        startTime = newStartTime,
+                        endTime = newEndTime,
+                        moduleCode = moduleCode)
+                    viewModel.editTimetable(entry)
+                    openDialog.value = false
+
+                }
+                catch(e: DateTimeParseException){
+                    showDateError = true
+                }
+
+            }
+            else {
+                showError = true
+            }
             }
                 )
             {
                 Text(text = "Add")
             }
+            if (showError) {
+                displayError1()
+            }
+            if(showDateError){
+                displayDateTimeError2()
+            }
         }
     )
 }
 
+
+@Composable
+fun displayError1(){
+    Text("Please fill in all fields", color = MaterialTheme.colorScheme.error)
+}
+@Composable
+fun displayDateTimeError2(){
+    Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
+}
+
+//Make the module code a drop down and link the Module Title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
     val viewModel = viewModel<ScheduleViewModel>()
     var moduleCode by remember { mutableStateOf(time.moduleCode) }
-    var weekday by remember { mutableStateOf(time.day) }
     var startTime by remember { mutableStateOf(time.startTime.toString()) }
     var endTime by remember { mutableStateOf(time.endTime.toString()) }
-
+    var showError by remember { mutableStateOf(false) }
+    var showDateError by remember { mutableStateOf(false) }
     AlertDialog(
         title = {Text(text = "Add a Day to Your Schedule")},
         text = {Column(
@@ -220,21 +246,38 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
         confirmButton = {
             Button(onClick =
             {
-                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-                val newStartTime = LocalTime.parse(startTime, timeFormatter)
-                val newEndTime = LocalTime.parse(endTime, timeFormatter)
-                val entry = TimetableEntity(
-                    id = time.id,
-                    day = weekday,
-                    startTime = newStartTime,
-                    endTime = newEndTime,
-                    moduleCode = moduleCode
-                )
-                viewModel.editTimetable(entry)
-                openDialog.value = false
+                if (startTime.isNotEmpty() && endTime.isNotEmpty() && moduleCode.isNotEmpty()) {
+                    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+                    try {
+                        val newStartTime = LocalTime.parse(startTime, timeFormatter)
+                        val newEndTime = LocalTime.parse(endTime, timeFormatter)
+                        val entry = TimetableEntity(
+                            id = time.id,
+                            day = time.day,
+                            startTime = newStartTime,
+                            endTime = newEndTime,
+                            moduleCode = moduleCode)
+                        viewModel.editTimetable(entry)
+                        openDialog.value = false
+                    
+                    }
+                    catch(e: DateTimeParseException){
+                        showDateError = true
+                    }
+
+                }
+                else {
+                    showError = true
+                }
             })
             {
                 Text(text = "Submit Changes")
+            }
+            if (showError) {
+                displayError1()
+            }
+            if(showDateError){
+                displayDateTimeError2()
             }
         }
     )
@@ -328,8 +371,7 @@ fun DialogDelete( openDialog: MutableState<Boolean>, time: TimetableEntity){
 
 @Composable
 fun CreateButtons(
-    time: TimetableEntity,
-    dao : TimetableDAO) {
+    time: TimetableEntity) {
     val openDialogView = remember { mutableStateOf(false)  }
     val openDialogDelete = remember { mutableStateOf(false)  }
     val openDialogEdit = remember{ mutableStateOf(false)  }
