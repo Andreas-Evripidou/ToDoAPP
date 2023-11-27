@@ -3,6 +3,7 @@ package com.example.studenttodo.viewmodels
 import android.app.Application
 import android.graphics.Color
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -56,6 +57,12 @@ internal class HomeViewModel (app: Application): AndroidViewModel(app){
         )
 
         dao.update(toDo)
+
+        val text = "To do Archived!"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(context, text, duration) // in Activity
+        toast.show()
     }
 
 }

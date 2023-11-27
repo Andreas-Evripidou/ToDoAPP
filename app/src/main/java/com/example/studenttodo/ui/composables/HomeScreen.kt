@@ -31,7 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.studenttodo.R
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.viewmodels.HomeViewModel
 
@@ -105,3 +107,7 @@ fun dispTasks (
             }
         }
 }
+
+
+// NOTIFICATIONS -----------------------------------------------------------------------------------
+//Notification builder

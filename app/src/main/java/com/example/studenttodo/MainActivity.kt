@@ -1,5 +1,6 @@
 package com.example.studenttodo
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val archiveViewModel = viewModel<ArchiveViewModel>()
             val toDoDAO = ToDoDatabase.getDB(LocalContext.current).todoDao()
+            val serviceIntent = Intent(this, NotifsBackground::class.java)
+            startService(serviceIntent)
             StudentToDoTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
