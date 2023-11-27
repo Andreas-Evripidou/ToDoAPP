@@ -26,6 +26,7 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
             startTime = timetable.startTime,
             endTime = timetable.endTime,
             moduleCode = timetable.moduleCode
+            //status = timetable.status
         )
         dao.update(timetable)
     }
@@ -34,6 +35,14 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
     }
     fun deleteTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         dao.delete(timetable)
+        //val timetable = TimetableEntity(
+        //            id = timetable.id,
+        //            day = timetable.day,
+        //            startTime = timetable.startTime,
+        //            endTime = timetable.endTime,
+        //            moduleCode = timetable.moduleCode,
+        //            // status = 1
+        //        )
     }
 
 

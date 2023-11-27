@@ -324,7 +324,8 @@ fun DialogView(openDialog: MutableState<Boolean>, openDialogEdit: MutableState<B
     )
 }
 
-//This is used to delete a timetable entry from the database
+//This is used to delete a timetable entry from the database, when sizyk merges with master
+// update it so it only changes status
 @Composable
 fun DialogDelete( openDialog: MutableState<Boolean>, time: TimetableEntity){
     val viewModel = viewModel<ScheduleViewModel>()
