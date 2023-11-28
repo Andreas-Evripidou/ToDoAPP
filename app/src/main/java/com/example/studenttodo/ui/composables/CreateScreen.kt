@@ -1,5 +1,16 @@
 package com.example.studenttodo.ui.composables
 
+import android.content.ContentResolver
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,6 +53,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+
 
 @Composable
 fun SubmitButton(onClick: ()-> Unit){
@@ -52,13 +69,14 @@ fun SubmitButton(onClick: ()-> Unit){
 }
 @Composable
 fun displayError(){
-    Text("Please fill in all fields", color = MaterialTheme.colorScheme.error)
+    Text("Please fill in all required fields (with *)", color = MaterialTheme.colorScheme.error)
 }
 @Composable
 fun displayDateTimeError(){
     Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen() {
@@ -67,20 +85,36 @@ fun CreateScreen() {
         modifier = Modifier
             .fillMaxSize(),
 
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
         var taskname by remember { mutableStateOf("") }
         var taskdescription by remember { mutableStateOf("") }
         var locationradius by remember { mutableStateOf("") }
-        Text("Task Name")
+
+        Row {
+            Text("Task Name")
+            Text(
+                " *",
+                color = Color.Red
+            )
+        }
         OutlinedTextField(
             value = taskname,
             onValueChange = { taskname = it },
-            label = { Text("task title") })
+            label = {
+
+                Text("task title")
+            })
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Task Description")
+        Row {
+            Text("Task Description")
+            Text(
+                " *",
+                color = Color.Red
+            )
+        }
         OutlinedTextField(
             value = taskdescription,
             onValueChange = { taskdescription = it },
@@ -89,7 +123,13 @@ fun CreateScreen() {
         Spacer(modifier = Modifier.height(16.dp))
         val choices = listOf("low", "medium", "high")
         val (priority, onSelected) = remember { mutableStateOf(choices[0]) }
-        Text("Task Priority")
+        Row {
+            Text("Task Priority")
+            Text(
+                " *",
+                color = Color.Red
+            )
+        }
         choices.forEach { text ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
@@ -102,115 +142,128 @@ fun CreateScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
 
-
-
         var date by remember { mutableStateOf("") }
         var time by remember { mutableStateOf("") }
 
-        Text("Reminder Date")
+
         var day by remember { mutableStateOf("") }
         var month by remember { mutableStateOf("") }
         var year by remember { mutableStateOf("") }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                modifier = Modifier.width(70.dp),
-                value = day,
-                onValueChange = { textInput ->
+        var showDateTimeFields by remember { mutableStateOf(false) }
 
-                    day = textInput.take(2)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { showDateTimeFields = !showDateTimeFields }
+            ) {
+                Checkbox(
+                    checked = showDateTimeFields,
+                    onCheckedChange = { showDateTimeFields = it })
+                Text("Add reminder date & time")
+            }
 
-                },
-                label = { Text("DD") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
+            if (showDateTimeFields) {
 
-            Text("/")
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.width(70.dp),
+                        value = day,
+                        onValueChange = { textInput ->
 
-            OutlinedTextField(
-                modifier = Modifier.width(70.dp),
-                value = month,
-                onValueChange = { textInput ->
+                            day = textInput.take(2)
 
-                    month =textInput.take(2)
+                        },
+                        label = { Text("DD") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
 
-                },
-                label = { Text("MM") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
+                    Text("/")
 
-            Text("/")
+                    OutlinedTextField(
+                        modifier = Modifier.width(70.dp),
+                        value = month,
+                        onValueChange = { textInput ->
 
+                            month = textInput.take(2)
 
-            OutlinedTextField(
-                modifier = Modifier.width(80.dp),
-                value = year,
-                onValueChange = { textInput ->
-                    year =textInput.take(4)
+                        },
+                        label = { Text("MM") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
 
-                },
-                label = { Text("YYYY") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
-        }
-        date = day.plus("/").plus(month).plus("/").plus(year)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        var enteredHours by remember { mutableStateOf("") }
-        var enteredMinutes by remember { mutableStateOf("") }
-        Text("Reminder Time")
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Hours Text Field
-            OutlinedTextField(
-                modifier = Modifier.width(70.dp),
-                value = enteredHours,
-                onValueChange = { newInput ->
-
-                    if (newInput.toIntOrNull() in 0..24) {
-                        enteredHours = newInput.take(2)
-                    }
-                },
-                label = { Text("HH") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
-
-            Text(":")
+                    Text("/")
 
 
-            OutlinedTextField(
-                modifier = Modifier.width(70.dp),
-                value = enteredMinutes,
-                onValueChange = { newInput ->
+                    OutlinedTextField(
+                        modifier = Modifier.width(80.dp),
+                        value = year,
+                        onValueChange = { textInput ->
+                            year = textInput.take(4)
 
-                    if (newInput.toIntOrNull() in 0..59) {
-                        enteredMinutes = newInput.take(2)
-                    }
-                },
-                label = { Text("MM") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
-        }
+                        },
+                        label = { Text("YYYY") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
+                }
+                date = day.plus("/").plus(month).plus("/").plus(year)
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-        time = time.plus(enteredHours).plus(":").plus(enteredMinutes)
+                var enteredHours by remember { mutableStateOf("") }
+                var enteredMinutes by remember { mutableStateOf("") }
 
-        Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Hours Text Field
+                    OutlinedTextField(
+                        modifier = Modifier.width(70.dp),
+                        value = enteredHours,
+                        onValueChange = { newInput ->
+
+                            if (newInput.toIntOrNull() in 0..24) {
+                                enteredHours = newInput.take(2)
+                            }
+                        },
+                        label = { Text("HH") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
+
+                    Text(":")
+
+
+                    OutlinedTextField(
+                        modifier = Modifier.width(70.dp),
+                        value = enteredMinutes,
+                        onValueChange = { newInput ->
+
+                            if (newInput.toIntOrNull() in 0..59) {
+                                enteredMinutes = newInput.take(2)
+                            }
+                        },
+                        label = { Text("MM") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                time = time.plus(enteredHours).plus(":").plus(enteredMinutes)
+
+            }
+
         Text("Pick Location")
         var longitude by remember { mutableStateOf("") }
         var latitude by remember { mutableStateOf("") }
@@ -225,7 +278,7 @@ fun CreateScreen() {
             value = latitude,
             onValueChange = { latitude = it },
             label = { Text("latitude") })
-
+        Spacer(modifier = Modifier.height(16.dp))
         Text("Location Radius")
         OutlinedTextField(
             modifier = Modifier.width(120.dp),
@@ -233,8 +286,42 @@ fun CreateScreen() {
             onValueChange = { locationradius = it },
             label = { Text("radius") })
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Take Picture (Not taught yet)")
+        Text("Select Image")
 
+        var pickedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+        val context = LocalContext.current
+        var selectedUri by remember { mutableStateOf("") }
+        val imageFromGalleryLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia()
+        ) { uri: Uri? ->
+            if (uri == null) {
+                pickedImageBitmap = null
+            } else {
+                var selectedUri: Uri = uri
+                val contentResolver: ContentResolver = context.contentResolver
+                pickedImageBitmap = ImageDecoder.decodeBitmap(
+                    ImageDecoder.createSource(contentResolver, uri)
+                ).asImageBitmap()
+            }
+        }
+
+
+
+        Column {
+            pickedImageBitmap?.let { imageBitmap ->
+                Image(imageBitmap, null)
+            }
+        }
+        OutlinedButton(onClick = {
+            imageFromGalleryLauncher.launch(
+                PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
+        ) {
+            Text("Open Gallery")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
 
         var showError by remember { mutableStateOf(false) }
@@ -244,7 +331,7 @@ fun CreateScreen() {
             var lTime = LocalTime.now()
 
 
-            if (date.isNotEmpty() && time.isNotEmpty() && taskname.isNotEmpty() && taskdescription.isNotEmpty() && locationradius.isNotEmpty()) {
+            if (taskname.isNotEmpty() && taskdescription.isNotEmpty()) {
 
                 val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -255,10 +342,7 @@ fun CreateScreen() {
                 } catch (e: DateTimeParseException) {
                     // Error handling: Print an error message or take appropriate action
 
-                    showDateError = true
                 }
-
-
 
 
                 val todo = ToDoEntity(
@@ -266,10 +350,10 @@ fun CreateScreen() {
                     reminderDate = lDate,
                     reminderTime = lTime,
 
-                    priority = choices.indexOf(priority)+1,
+                    priority = choices.indexOf(priority) + 1,
                     status = 0,
                     description = taskdescription,
-                    picture = "temp",
+                    picture = selectedUri,
                     latitude = latitude,
                     longitude = longitude,
                     range = locationradius,
@@ -288,7 +372,7 @@ fun CreateScreen() {
         if (showError) {
             displayError()
         }
-        if(showDateError){
+        if (showDateError) {
             displayDateTimeError()
         }
     }
