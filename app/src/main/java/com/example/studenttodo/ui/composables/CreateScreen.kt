@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -74,6 +75,15 @@ fun displayError(){
 @Composable
 fun displayDateTimeError(){
     Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
+}
+
+@Composable
+fun displaySucess(){
+    Text(
+        text = "ToDo Successfully Added",
+        color = Color.Green,
+
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
@@ -264,68 +274,94 @@ fun CreateScreen() {
 
             }
 
-        Text("Pick Location")
+        var showLocation by remember { mutableStateOf(false) }
+
         var longitude by remember { mutableStateOf("") }
         var latitude by remember { mutableStateOf("") }
 
-        OutlinedTextField(
-            modifier = Modifier.width(120.dp),
-            value = longitude,
-            onValueChange = { longitude = it },
-            label = { Text("longitude") })
-        OutlinedTextField(
-            modifier = Modifier.width(120.dp),
-            value = latitude,
-            onValueChange = { latitude = it },
-            label = { Text("latitude") })
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Location Radius")
-        OutlinedTextField(
-            modifier = Modifier.width(120.dp),
-            value = locationradius,
-            onValueChange = { locationradius = it },
-            label = { Text("radius") })
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Select Image")
 
-        var pickedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-        val context = LocalContext.current
-        var selectedUri by remember { mutableStateOf("") }
-        val imageFromGalleryLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.PickVisualMedia()
-        ) { uri: Uri? ->
-            if (uri == null) {
-                pickedImageBitmap = null
-            } else {
-                var selectedUri: Uri = uri
-                val contentResolver: ContentResolver = context.contentResolver
-                pickedImageBitmap = ImageDecoder.decodeBitmap(
-                    ImageDecoder.createSource(contentResolver, uri)
-                ).asImageBitmap()
-            }
-        }
-
-
-
-        Column {
-            pickedImageBitmap?.let { imageBitmap ->
-                Image(imageBitmap, null)
-            }
-        }
-        OutlinedButton(onClick = {
-            imageFromGalleryLauncher.launch(
-                PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { showLocation = !showLocation }
         ) {
-            Text("Open Gallery")
+            Checkbox(
+                checked = showLocation,
+                onCheckedChange = { showLocation = it })
+            Text("Add a location")
         }
 
+        if (showLocation) {
+            OutlinedTextField(
+                modifier = Modifier.width(120.dp),
+                value = longitude,
+                onValueChange = { longitude = it },
+                label = { Text("longitude") })
+            OutlinedTextField(
+                modifier = Modifier.width(120.dp),
+                value = latitude,
+                onValueChange = { latitude = it },
+                label = { Text("latitude") })
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                modifier = Modifier.width(120.dp),
+                value = locationradius,
+                onValueChange = { locationradius = it },
+                label = { Text("radius") })
+        }
+
+
+        var showImage by remember { mutableStateOf(false) }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { showImage = !showImage }
+        ) {
+            Checkbox(
+                checked = showImage,
+                onCheckedChange = { showImage = it })
+            Text("Add a image")
+        }
+        var selectedUri by remember { mutableStateOf("") }
+        if(showImage) {
+            var pickedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+            val context = LocalContext.current
+            var selectedUri by remember { mutableStateOf("") }
+            val imageFromGalleryLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickVisualMedia()
+            ) { uri: Uri? ->
+                if (uri == null) {
+                    pickedImageBitmap = null
+                } else {
+                    var selectedUri: Uri = uri
+                    val contentResolver: ContentResolver = context.contentResolver
+                    pickedImageBitmap = ImageDecoder.decodeBitmap(
+                        ImageDecoder.createSource(contentResolver, uri)
+                    ).asImageBitmap()
+                }
+            }
+
+
+
+            Column {
+                pickedImageBitmap?.let { imageBitmap ->
+                    Image(imageBitmap, null)
+                }
+            }
+            OutlinedButton(onClick = {
+                imageFromGalleryLauncher.launch(
+                    PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            }
+            ) {
+                Text("Open Gallery")
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
 
         var showError by remember { mutableStateOf(false) }
         var showDateError by remember { mutableStateOf(false) }
+        var showSucess by remember { mutableStateOf(false) }
         SubmitButton {
             var lDate = LocalDate.now()
             var lTime = LocalTime.now()
@@ -362,7 +398,7 @@ fun CreateScreen() {
                     moduleCode = "temp"
                 )
                 viewModel.createToDo(todo)
-
+                showSucess = true
             } else {
                 showError = true
             }
@@ -374,6 +410,9 @@ fun CreateScreen() {
         }
         if (showDateError) {
             displayDateTimeError()
+        }
+        if (showSucess) {
+            displaySucess()
         }
     }
 
