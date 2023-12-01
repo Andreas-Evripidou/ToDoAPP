@@ -1,17 +1,13 @@
 package com.example.studenttodo.entities
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-@Entity(tableName = ToDoEntity.TABLE_NAME, foreignKeys = [ForeignKey(entity = ModuleEntity::class,
-    parentColumns = ["moduleCode"],
-    childColumns = ["moduleCode"],
-    onDelete = ForeignKey.NO_ACTION)])
+@Entity(ToDoEntity.TABLE_NAME)
 data class ToDoEntity  (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
@@ -29,7 +25,7 @@ data class ToDoEntity  (
     val createdLongitude: String,
     val createdDate: LocalDate = LocalDate.now(),
     val createdTime: LocalTime = LocalTime.now(),
-    val moduleCode: String
+    val moduleCode: String, // Todo: Enum
 ) {
     companion object {
         const val TABLE_NAME = "Todos"
