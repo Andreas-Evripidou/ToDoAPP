@@ -105,8 +105,13 @@ fun displaySucess(){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen() {
+    val context = LocalContext.current
     val viewModel = viewModel<CreateViewModel>()
-    val context = viewModel.context
+    var openDialog = remember { mutableStateOf(false) }
+
+    if (openDialog.value) {
+        ModuleCreateDialog(openDialog = openDialog)
+    }
 
     Column(
         modifier = Modifier
@@ -377,12 +382,14 @@ fun CreateScreen() {
 
         val moduleScope = rememberCoroutineScope()
         val modules by viewModel.modules.collectAsState(initial = emptyList())
+        var moduleCode = ""
+        Text(text = "Module Code")
         if (modules.size != 0) {
             val moduleTitles = makeArrayOfModuleCodes(modules)
 
             var expanded by remember { mutableStateOf(false) }
             var selectedText by remember { mutableStateOf(moduleTitles[0]) }
-            Text(text = "Module Code")
+
 
             Row {
                 ExposedDropdownMenuBox(
@@ -423,6 +430,21 @@ fun CreateScreen() {
                     )
                 }
             }
+            moduleCode = selectedText
+        }
+        else {
+            Box(
+                modifier = Modifier
+                    .width(50.dp)
+                    .fillMaxHeight()
+                    .clickable { openDialog.value = true }
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Add Module",
+                    Modifier.fillMaxSize()
+                )
+            }
         }
 
 
@@ -462,7 +484,7 @@ fun CreateScreen() {
                     range = locationradius,
                     createdLatitude = "temp",
                     createdLongitude = "temp",
-                    moduleCode = "temp"
+                    moduleCode = moduleCode
                 )
                 viewModel.createToDo(todo)
                 showSucess = true
