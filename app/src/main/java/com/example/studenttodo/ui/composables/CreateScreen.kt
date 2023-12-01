@@ -10,12 +10,16 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,10 +27,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+<<<<<<< app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+=======
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedButton
+>>>>>>> app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -34,9 +51,12 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +67,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.viewmodels.CreateViewModel
 import java.time.LocalDate
@@ -90,11 +112,23 @@ fun displaySucess(){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen() {
+    val context = LocalContext.current
     val viewModel = viewModel<CreateViewModel>()
+    var openDialog = remember { mutableStateOf(false) }
+    
+    if (openDialog.value) {
+        ModuleCreateDialog(openDialog = openDialog)
+    }
+
     Column(
         modifier = Modifier
+<<<<<<< app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
             .fillMaxSize(),
 
+=======
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+>>>>>>> app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -361,7 +395,58 @@ fun CreateScreen() {
 
         var showError by remember { mutableStateOf(false) }
         var showDateError by remember { mutableStateOf(false) }
+<<<<<<< app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
         var showSucess by remember { mutableStateOf(false) }
+=======
+
+
+        val moduleScope = rememberCoroutineScope()
+        val modules by viewModel.modules.collectAsState(initial = emptyList())
+        if (modules.size != 0) {
+            val moduleTitles = makeArrayOfModuleCodes(modules)
+
+            var expanded by remember { mutableStateOf(false) }
+            var selectedText by remember { mutableStateOf(moduleTitles[0]) }
+            Text(text = "Module Code")
+
+            Row {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }) {
+                    TextField(
+                        value = selectedText,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier.menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }) {
+                        moduleTitles.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(text = item) },
+                                onClick = {
+                                    selectedText = item
+                                    expanded = false
+                                    Toast.makeText(context, item, Toast.LENGTH_SHORT)
+                                })
+
+                        }
+                    }
+                }
+                Box (
+                    modifier = Modifier
+                        .width(50.dp)
+                        .fillMaxHeight()
+                        .clickable { openDialog.value = true }
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add Module", Modifier.fillMaxSize() )
+                }
+            }
+        }
+        
+>>>>>>> app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
         SubmitButton {
             var lDate = LocalDate.now()
             var lTime = LocalTime.now()
@@ -421,3 +506,80 @@ fun CreateScreen() {
 
 
 
+<<<<<<< app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
+=======
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
+    val viewModel = viewModel<CreateViewModel>()
+    var code by remember { mutableStateOf("") }
+    var lat by remember { mutableStateOf("") }
+    var long by remember { mutableStateOf("") }
+    var moduleTitle by remember { mutableStateOf("") }
+    AlertDialog(
+        title = { Text(text = "Create Module")},
+        text = {
+            Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = "Module Code")
+                TextField(
+                    value = code,
+                    onValueChange = { code = it },
+                    label = { Text(text = "Module Code") })
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text(text = "Latitude")
+                TextField(
+                    value = lat,
+                    onValueChange = { lat = it },
+                    label = { Text(text = "Latitude") })
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text(text = "Longitude")
+                TextField(
+                    value = long,
+                    onValueChange = { long = it },
+                    label = { Text(text = "Longitude") })
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text(text = "Module Title")
+                TextField(
+                    value = moduleTitle,
+                    onValueChange = { moduleTitle = it },
+                    label = { Text(text = "Module Title") })
+                Spacer(modifier = Modifier.size(10.dp))
+            }
+        },
+        onDismissRequest = { openDialog.value = false },
+        dismissButton = {
+            Button(onClick = { openDialog.value = false})
+            {
+                Text(text = "Dismiss")
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val module = ModuleEntity(
+                    moduleCode = code,
+                    lat = lat,
+                    long = long,
+                    moduleTitle = moduleTitle
+                )
+                viewModel.createModule(module = module)
+                openDialog.value = false
+            }) {
+                Text(text = "Create Module")
+            }
+        })
+}
+
+fun makeArrayOfModuleCodes(modules: List<ModuleEntity>) : ArrayList<String> {
+    var moduleCodes = ArrayList<String>()
+    for (module in modules) {
+        moduleCodes.add(module.moduleCode)
+    }
+
+    return moduleCodes
+}
+>>>>>>> app/src/main/java/com/example/studenttodo/ui/composables/CreateScreen.kt
