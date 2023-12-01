@@ -158,7 +158,7 @@ fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
                         startTime = newStartTime,
                         endTime = newEndTime,
                         moduleCode = moduleCode)
-                    viewModel.editTimetable(entry)
+                    viewModel.createTimetable(entry)
                     openDialog.value = false
 
                 }
