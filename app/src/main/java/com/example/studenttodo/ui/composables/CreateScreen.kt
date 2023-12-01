@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +35,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +50,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.viewmodels.CreateViewModel
 import java.time.LocalDate
@@ -414,6 +417,80 @@ fun CreateScreen() {
         if (showSucess) {
             displaySucess()
         }
+    }
+
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
+        val viewModel = viewModel<CreateViewModel>()
+        var code by remember { mutableStateOf("") }
+        var lat by remember { mutableStateOf("") }
+        var long by remember { mutableStateOf("") }
+        var moduleTitle by remember { mutableStateOf("") }
+        AlertDialog(
+            title = { Text(text = "Create Module")},
+            text = {
+                Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(text = "Module Code")
+                    TextField(
+                        value = code,
+                        onValueChange = { code = it },
+                        label = { Text(text = "Module Code") })
+                    Spacer(modifier = Modifier.size(10.dp))
+
+                    Text(text = "Latitude")
+                    TextField(
+                        value = lat,
+                        onValueChange = { lat = it },
+                        label = { Text(text = "Latitude") })
+                    Spacer(modifier = Modifier.size(10.dp))
+
+                    Text(text = "Longitude")
+                    TextField(
+                        value = long,
+                        onValueChange = { long = it },
+                        label = { Text(text = "Longitude") })
+                    Spacer(modifier = Modifier.size(10.dp))
+
+                    Text(text = "Module Title")
+                    TextField(
+                        value = moduleTitle,
+                        onValueChange = { moduleTitle = it },
+                        label = { Text(text = "Module Title") })
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
+            },
+            onDismissRequest = { openDialog.value = false },
+            dismissButton = {
+                Button(onClick = { openDialog.value = false})
+                {
+                    Text(text = "Dismiss")
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val module = ModuleEntity(
+                        moduleCode = code,
+                        lat = lat,
+                        long = long,
+                        moduleTitle = moduleTitle
+                    )
+                    viewModel.createModule(module = module)
+                    openDialog.value = false
+                }) {
+                    Text(text = "Create Module")
+                }
+            })
+    }
+
+    fun makeArrayOfModuleCodes(modules: List<ModuleEntity>) : ArrayList<String> {
+        var moduleCodes = ArrayList<String>()
+        for (module in modules) {
+            moduleCodes.add(module.moduleCode)
+        }
+
+        return moduleCodes
     }
 
 }

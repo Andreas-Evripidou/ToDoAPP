@@ -16,4 +16,8 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
     fun createToDo (toDo: ToDoEntity) = viewModelScope.launch {
         dao.insert(toDo)
     }
+
+    fun createModule(module: ModuleEntity) {
+
+    }
 }
