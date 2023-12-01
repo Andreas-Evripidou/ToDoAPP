@@ -406,8 +406,10 @@ fun CreateButtons(
             ) {
                 Spacer(modifier = Modifier.size(16.dp))
                 Column {
-                    Text(text = time.moduleCode, style = MaterialTheme.typography.headlineSmall)
+                    Text(text = time.moduleCode, style = MaterialTheme.typography.headlineSmall) //This is going to be the moduleName
+                    Text(text = "Module code: ${time.moduleCode}")
                     Text(text = "Time: ${time.startTime} - ${time.endTime}")
+
                 }
             }
 
