@@ -20,30 +20,21 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
         //TODO View more details
     }
     fun editTimetable(timetable: TimetableEntity) = viewModelScope.launch {
-        val timetable = TimetableEntity(
-            id = timetable.id,
-            day = timetable.day,
-            startTime = timetable.startTime,
-            endTime = timetable.endTime,
-            moduleCode = timetable.moduleCode
-            //status = timetable.status
-        )
         dao.update(timetable)
     }
     fun createTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         dao.insert(timetable)
     }
     fun deleteTimetable(timetable: TimetableEntity) = viewModelScope.launch {
-        dao.delete(timetable)
-        //val timetable = TimetableEntity(
-        //            id = timetable.id,
-        //            day = timetable.day,
-        //            startTime = timetable.startTime,
-        //            endTime = timetable.endTime,
-        //            moduleCode = timetable.moduleCode,
-        //            // status = 1
-        //        )
-        //dao.update(timetable)
+        val timetable = TimetableEntity(
+        id = timetable.id,
+        day = timetable.day,
+        startTime = timetable.startTime,
+        endTime = timetable.endTime,
+        moduleCode = timetable.moduleCode,
+        status = 1
+        )
+        dao.update(timetable)
     }
 
 
