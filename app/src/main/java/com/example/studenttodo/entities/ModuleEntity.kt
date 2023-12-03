@@ -1,6 +1,5 @@
 package com.example.studenttodo.entities
 
-import androidx.room.ColumnInfo
 import java.sql.Time
 import java.util.Date
 import androidx.room.Entity
@@ -14,7 +13,6 @@ data class ModuleEntity(
     val long: String,
     val moduleTitle: String
 ) {
-
     companion object {
         const val TABLE_NAME = "Modules"
     }

@@ -9,9 +9,9 @@ import java.time.LocalTime
 import kotlin.reflect.KClass
 
 @Entity(tableName = TimetableEntity.TABLE_NAME, foreignKeys = [ForeignKey(entity = ModuleEntity::class,
-                                                            parentColumns = ["moduleCode"],
-                                                            childColumns = ["moduleCode"],
-                                                            onDelete = ForeignKey.NO_ACTION)])
+    parentColumns = ["moduleCode"],
+    childColumns = ["moduleCode"],
+    onDelete = ForeignKey.NO_ACTION)])
 data class TimetableEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,

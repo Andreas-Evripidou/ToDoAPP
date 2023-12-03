@@ -4,8 +4,13 @@ import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.DateRange
@@ -34,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 data class NavigationComponent(
     val title: String,
@@ -84,7 +90,10 @@ fun NavigationComponents(
 }
 
 @Composable
-fun ScreenComponents(selectedScreenID: Int){
+fun ScreenComponents(
+    selectedScreenID: Int,
+    updateSelected: (screenID: Int, newTitle: String) -> Unit
+){
     when (selectedScreenID) {
         ScreenID.HOME -> HomeScreen()
         ScreenID.CREATE -> CreateScreen()
@@ -121,11 +130,13 @@ fun NavigationScaffold(){
         content = {
             Column ( modifier = Modifier
                 .padding(it)
-                .fillMaxSize().padding(12.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start)
+                .fillMaxSize().padding(horizontal = 12.dp)
+                .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Top)
             {
-                ScreenComponents(selectedScreenID = selectedScreenID)
+                Spacer(modifier = Modifier.size(10.dp))
+                ScreenComponents(selectedScreenID = selectedScreenID, updateSelected = ::updatedSelectedID)
+                Spacer(modifier = Modifier.size(10.dp))
             }
         })
 }

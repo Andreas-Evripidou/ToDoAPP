@@ -1,6 +1,17 @@
 package com.example.studenttodo.ui.composables
 
+import android.content.ContentResolver
+import android.graphics.ImageDecoder
+import android.graphics.drawable.Icon
+import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +20,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,11 +29,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -34,7 +43,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -46,35 +54,69 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.viewmodels.CreateViewModel
-import com.example.studenttodo.viewmodels.HomeViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
+
+@Composable
+fun SubmitButton(onClick: ()-> Unit){
+    Button(
+        onClick = {
+            onClick()
+
+        }){
+        Text("Submit")
+
+    }
+
+}
+@Composable
+fun displayError(){
+    Text("Please fill in all required fields (with *)", color = MaterialTheme.colorScheme.error)
+}
+@Composable
+fun displayDateTimeError(){
+    Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
+}
+
+@Composable
+fun displaySucess(){
+    Text(
+        text = "ToDo Successfully Added",
+        color = Color.Green,
+
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen() {
     val context = LocalContext.current
     val viewModel = viewModel<CreateViewModel>()
     var openDialog = remember { mutableStateOf(false) }
-    
+
     if (openDialog.value) {
         ModuleCreateDialog(openDialog = openDialog)
     }
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fillMaxSize(),
+
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -82,21 +124,44 @@ fun CreateScreen() {
         var taskname by remember { mutableStateOf("") }
         var taskdescription by remember { mutableStateOf("") }
         var locationradius by remember { mutableStateOf("") }
-        Text("Task Name")
+
+        Row {
+            Text("Task Name")
+            Text(
+                " *",
+                color = Color.Red
+            )
+        }
         OutlinedTextField(
             value = taskname,
             onValueChange = { taskname = it },
-            label = { Text("task title") })
+            label = {
 
-        Text("Task Description")
+                Text("task title")
+            })
+        Spacer(modifier = Modifier.height(16.dp))
+        Row {
+            Text("Task Description")
+            Text(
+                " *",
+                color = Color.Red
+            )
+        }
         OutlinedTextField(
             value = taskdescription,
             onValueChange = { taskdescription = it },
             label = { Text("task description") })
 
-        val choices = listOf("high", "medium", "low")
+        Spacer(modifier = Modifier.height(16.dp))
+        val choices = listOf("low", "medium", "high")
         val (priority, onSelected) = remember { mutableStateOf(choices[0]) }
-        Text("Task Priority")
+        Row {
+            Text("Task Priority")
+            Text(
+                " *",
+                color = Color.Red
+            )
+        }
         choices.forEach { text ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
@@ -106,103 +171,225 @@ fun CreateScreen() {
                 Text(text)
             }
         }
-
-
-
+        Spacer(modifier = Modifier.height(16.dp))
 
 
         var date by remember { mutableStateOf("") }
         var time by remember { mutableStateOf("") }
 
-        Text("Reminder Date")
+
         var day by remember { mutableStateOf("") }
         var month by remember { mutableStateOf("") }
         var year by remember { mutableStateOf("") }
+        var showDateTimeFields by remember { mutableStateOf(false) }
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { showDateTimeFields = !showDateTimeFields }
         ) {
-            OutlinedTextField(
-                modifier = Modifier.width(70.dp),
-                value = day,
-                onValueChange = { textInput ->
-
-                    day = textInput.take(2)
-
-                },
-                label = { Text("DD") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
-
-            Text("/")
-
-
-            OutlinedTextField(
-                modifier = Modifier.width(70.dp),
-                value = month,
-                onValueChange = { textInput ->
-
-                    month =textInput.take(2)
-
-                },
-                label = { Text("MM") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
-
-            Text("/")
-
-
-            OutlinedTextField(
-                modifier = Modifier.width(80.dp),
-                value = year,
-                onValueChange = { textInput ->
-                    year =textInput.take(4)
-
-                },
-                label = { Text("YYYY") },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number
-                )
-            )
+            Checkbox(
+                checked = showDateTimeFields,
+                onCheckedChange = { showDateTimeFields = it })
+            Text("Add reminder date & time")
         }
-        date = day.plus("/").plus(month).plus("/").plus(year)
+
+        if (showDateTimeFields) {
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.width(70.dp),
+                    value = day,
+                    onValueChange = { textInput ->
+
+                        day = textInput.take(2)
+
+                    },
+                    label = { Text("DD") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+
+                Text("/")
+
+                OutlinedTextField(
+                    modifier = Modifier.width(70.dp),
+                    value = month,
+                    onValueChange = { textInput ->
+
+                        month = textInput.take(2)
+
+                    },
+                    label = { Text("MM") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+
+                Text("/")
+
+
+                OutlinedTextField(
+                    modifier = Modifier.width(80.dp),
+                    value = year,
+                    onValueChange = { textInput ->
+                        year = textInput.take(4)
+
+                    },
+                    label = { Text("YYYY") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
+            date = day.plus("/").plus(month).plus("/").plus(year)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            var enteredHours by remember { mutableStateOf("") }
+            var enteredMinutes by remember { mutableStateOf("") }
+
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Hours Text Field
+                OutlinedTextField(
+                    modifier = Modifier.width(70.dp),
+                    value = enteredHours,
+                    onValueChange = { newInput ->
+
+                        if (newInput.toIntOrNull() in 0..24) {
+                            enteredHours = newInput.take(2)
+                        }
+                    },
+                    label = { Text("HH") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+
+                Text(":")
+
+
+                OutlinedTextField(
+                    modifier = Modifier.width(70.dp),
+                    value = enteredMinutes,
+                    onValueChange = { newInput ->
+
+                        if (newInput.toIntOrNull() in 0..59) {
+                            enteredMinutes = newInput.take(2)
+                        }
+                    },
+                    label = { Text("MM") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            time = time.plus(enteredHours).plus(":").plus(enteredMinutes)
+
+        }
+
+        var showLocation by remember { mutableStateOf(false) }
+
+        var longitude by remember { mutableStateOf("") }
+        var latitude by remember { mutableStateOf("") }
+
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { showLocation = !showLocation }
+        ) {
+            Checkbox(
+                checked = showLocation,
+                onCheckedChange = { showLocation = it })
+            Text("Add a location")
+        }
+
+        if (showLocation) {
+            OutlinedTextField(
+                modifier = Modifier.width(120.dp),
+                value = longitude,
+                onValueChange = { longitude = it },
+                label = { Text("longitude") })
+            OutlinedTextField(
+                modifier = Modifier.width(120.dp),
+                value = latitude,
+                onValueChange = { latitude = it },
+                label = { Text("latitude") })
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                modifier = Modifier.width(120.dp),
+                value = locationradius,
+                onValueChange = { locationradius = it },
+                label = { Text("radius") })
+        }
+
+
+        var showImage by remember { mutableStateOf(false) }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { showImage = !showImage }
+        ) {
+            Checkbox(
+                checked = showImage,
+                onCheckedChange = { showImage = it })
+            Text("Add a image")
+        }
+        var selectedUri by remember { mutableStateOf("") }
+        if (showImage) {
+            var pickedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+            val context = LocalContext.current
+            var selectedUri by remember { mutableStateOf("") }
+            val imageFromGalleryLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickVisualMedia()
+            ) { uri: Uri? ->
+                if (uri == null) {
+                    pickedImageBitmap = null
+                } else {
+                    var selectedUri: Uri = uri
+                    val contentResolver: ContentResolver = context.contentResolver
+                    pickedImageBitmap = ImageDecoder.decodeBitmap(
+                        ImageDecoder.createSource(contentResolver, uri)
+                    ).asImageBitmap()
+                }
+            }
+
+
+
+            Column {
+                pickedImageBitmap?.let { imageBitmap ->
+                    Image(imageBitmap, null)
+                }
+            }
+            OutlinedButton(onClick = {
+                imageFromGalleryLauncher.launch(
+                    PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            }
+            ) {
+                Text("Open Gallery")
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Reminder Time")
-        OutlinedTextField(
-            value = time,
-            onValueChange = { time = it },
-            label = { Text("in format HH:MM") })
-
-
-        Text("Take Picture (Not taught yet)")
-
-
-        Text("Pick Location (Not taught yet")
-
-        Text("Location Radius")
-        OutlinedTextField(
-            value = locationradius,
-            onValueChange = { locationradius = it },
-            label = { Text("location radius") })
-
-        var showError by remember { mutableStateOf(false) }
-        var showDateError by remember { mutableStateOf(false) }
-
 
         val moduleScope = rememberCoroutineScope()
         val modules by viewModel.modules.collectAsState(initial = emptyList())
+        var moduleCode = ""
+        Text(text = "Module Code")
         if (modules.size != 0) {
             val moduleTitles = makeArrayOfModuleCodes(modules)
 
             var expanded by remember { mutableStateOf(false) }
             var selectedText by remember { mutableStateOf(moduleTitles[0]) }
-            Text(text = "Module Code")
+
 
             Row {
                 ExposedDropdownMenuBox(
@@ -230,54 +417,77 @@ fun CreateScreen() {
                         }
                     }
                 }
-                Box (
+                Box(
                     modifier = Modifier
                         .width(50.dp)
                         .fillMaxHeight()
                         .clickable { openDialog.value = true }
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add Module", Modifier.fillMaxSize() )
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "Add Module",
+                        Modifier.fillMaxSize()
+                    )
                 }
             }
+            moduleCode = selectedText
         }
-        
+        else {
+            Box(
+                modifier = Modifier
+                    .width(50.dp)
+                    .fillMaxHeight()
+                    .clickable { openDialog.value = true }
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Add Module",
+                    Modifier.fillMaxSize()
+                )
+            }
+        }
+
+
+        var showError by remember { mutableStateOf(false) }
+        var showDateError by remember { mutableStateOf(false) }
+        var showSucess by remember { mutableStateOf(false) }
         SubmitButton {
             var lDate = LocalDate.now()
             var lTime = LocalTime.now()
 
 
-            if (date.isNotEmpty() && time.isNotEmpty() && taskname.isNotEmpty() && taskdescription.isNotEmpty() && locationradius.isNotEmpty()) {
+            if (taskname.isNotEmpty() && taskdescription.isNotEmpty()) {
 
                 val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
                 try {
                     lDate = LocalDate.parse(date, dateFormatter)
+                    lTime = LocalTime.parse(time, timeFormatter)
 
                 } catch (e: DateTimeParseException) {
                     // Error handling: Print an error message or take appropriate action
 
-                    showDateError = true
                 }
 
-                lTime = LocalTime.parse(time, timeFormatter)
 
                 val todo = ToDoEntity(
                     title = taskname,
                     reminderDate = lDate,
                     reminderTime = lTime,
-                    priority = choices.indexOf(priority),
+
+                    priority = choices.indexOf(priority) + 1,
                     status = 0,
                     description = taskdescription,
-                    picture = "temp",
-                    latitude = "temp",
-                    longitude = "temp",
+                    picture = selectedUri,
+                    latitude = latitude,
+                    longitude = longitude,
                     range = locationradius,
                     createdLatitude = "temp",
                     createdLongitude = "temp",
-                    moduleCode = "temp"
+                    moduleCode = moduleCode
                 )
                 viewModel.createToDo(todo)
+                showSucess = true
             } else {
                 showError = true
             }
@@ -287,33 +497,14 @@ fun CreateScreen() {
         if (showError) {
             displayError()
         }
-        if(showDateError){
+        if (showDateError) {
             displayDateTimeError()
         }
-    }
-
-}
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DatePickerDemo() {
-
-}
-
-    @Composable
-    fun displayError(){
-        Text("Please fill in all fields", color = MaterialTheme.colorScheme.error)
-    }
-    @Composable
-    fun displayDateTimeError(){
-        Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
-    }
-
-    @Composable
-    fun SubmitButton(onClick: ()-> Unit){
-        Button(onClick = {onClick()}){
-            Text("Submit")
-
+        if (showSucess) {
+            displaySucess()
         }
+    }
+
 
 }
 
@@ -389,3 +580,7 @@ fun makeArrayOfModuleCodes(modules: List<ModuleEntity>) : ArrayList<String> {
 
     return moduleCodes
 }
+
+
+
+
