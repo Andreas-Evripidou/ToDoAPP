@@ -1,6 +1,5 @@
 package com.example.studenttodo.ui.composables
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,9 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -60,44 +57,39 @@ fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
     val times by viewModel<ScheduleViewModel>().timetable.collectAsState(initial = emptyList())
     val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 
-
-        //This is the day of the week, repeat for each work day of the week
-            weekdays.forEach { weekday ->
-                Text(
-                    text = weekday,
-                    modifier = modifier,
-                    style = MaterialTheme.typography.headlineSmall
+    //This is the day of the week, repeat for each work day of the week
+    weekdays.forEach { weekday ->
+        Text(
+            text = weekday,
+            modifier = modifier,
+            style = MaterialTheme.typography.headlineSmall
+        )
+        //This repeats for each data value matching the current day of the week
+        val current = times.filter {it.day == weekday}
+        current.forEach { time ->
+            if (time.status ==0){ CreateButtons(time = time)}}
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+                horizontalArrangement = Arrangement.Center
+        ) {
+            val openDialog = remember { mutableStateOf(false)  }
+            if (openDialog.value) {
+                DialogAdd( openDialog, weekday)
+            }
+            Box(modifier = Modifier
+                .width(50.dp)
+                .clickable { openDialog.value = true }
+            ) {
+                Icon(
+                    Icons.Filled.AddCircle,
+                    contentDescription = "Add"
                 )
-                //This repeats for each data value matching the current day of the week
-                val current = times.filter {it.day == weekday}
-                current.forEach { time ->
-                    CreateButtons(
-                        time = time)}
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    val openDialog = remember { mutableStateOf(false)  }
-                    if (openDialog.value) {
-                        DialogAdd( openDialog, weekday)
-                    }
-                    Box(modifier = Modifier
-                        .width(50.dp)
-                        .clickable { openDialog.value = true }
-                    ) {
-                        Icon(
-                            Icons.Filled.AddCircle,
-                            contentDescription = "Add"
-                        )
-                    }
-                }
-
-                }
+            }
         }
-
+    }
+}
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ModuleCreateDialog(openDialog: MutableState<Boolean>, openDialog2: MutableState<Boolean>) {
@@ -107,35 +99,40 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>, openDialog2: MutableSt
     var long by remember { mutableStateOf("") }
     var moduleTitle by remember { mutableStateOf("") }
     AlertDialog(
-        title = { Text(text = "Create Module")},
+        title = { Text(text = "Create Module",modifier = Modifier,
+            style = MaterialTheme.typography.headlineMedium )},
         text = {
             Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Module Code")
+                Text(text = "Module Title",modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
+                TextField(
+                    value = moduleTitle,
+                    onValueChange = { moduleTitle = it },
+                    label = { Text(text = "Module Title") })
+                Spacer(modifier = Modifier.size(10.dp))
+
+                Text(text = "Module Code", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = code,
                     onValueChange = { code = it },
                     label = { Text(text = "Module Code") })
                 Spacer(modifier = Modifier.size(10.dp))
 
-                Text(text = "Latitude")
+                Text(text = "Latitude", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = lat,
                     onValueChange = { lat = it },
                     label = { Text(text = "Latitude") })
                 Spacer(modifier = Modifier.size(10.dp))
 
-                Text(text = "Longitude")
+                Text(text = "Longitude", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = long,
                     onValueChange = { long = it },
                     label = { Text(text = "Longitude") })
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text(text = "Module Title")
-                TextField(
-                    value = moduleTitle,
-                    onValueChange = { moduleTitle = it },
-                    label = { Text(text = "Module Title") })
                 Spacer(modifier = Modifier.size(10.dp))
             }
         },
@@ -165,7 +162,17 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>, openDialog2: MutableSt
         })
 }
 
-//Make the module code a drop down and link the Module Title
+fun findModule(modules: List<ModuleEntity>, currentModuleCode: String): ModuleEntity {
+    var requiredModule = modules[0]
+    for (module in modules) {
+        if (module.moduleCode == currentModuleCode) {
+            requiredModule = module
+        }
+    }
+
+    return requiredModule
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
@@ -178,30 +185,36 @@ fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
     val openDialogModule = remember { mutableStateOf(false)  }
 
     AlertDialog(
-        title = {Text(text = "Add a Day to Your Schedule")},
+        title = {Text(text = "Add a Day to Your Schedule", modifier = Modifier,
+            style = MaterialTheme.typography.headlineMedium)},
         text = {Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ){
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Module Code:")
-                val moduleScope = rememberCoroutineScope()
-                Box(
+                Row(
                     modifier = Modifier
-                        .width(50.dp)
-                        .fillMaxHeight()
-                        .clickable { openDialogModule.value = true }
+                        .fillMaxWidth()
+                        .padding(6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        Icons.Filled.Add,
-                        contentDescription = "Add Module",
-                        Modifier.fillMaxSize()
-                    )
+                    Text("Module Code:", modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall)
+                    Box(
+                        modifier = Modifier
+                            .clickable { openDialogModule.value = true }
+                    ) {
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = "Add Module",
+                        )
+                    }
+                    if (openDialogModule.value) {
+                        ModuleCreateDialog(openDialog = openDialogModule, openDialog2 = openDialog)
+                    }
                 }
-                if (openDialogModule.value){
-                    ModuleCreateDialog(openDialog = openDialogModule, openDialog2 = openDialog)}
                 val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
-                if (modules.size != 0) {
+                if (modules.isNotEmpty()) {
                     val moduleTitles = makeArrayOfModuleCodes(modules)
 
                     var expanded by remember { mutableStateOf(false) }
@@ -240,7 +253,8 @@ fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
 
                 Spacer(modifier = Modifier.size(10.dp))
 
-                Text("Start Time:")
+                Text("Start Time:", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = startTime,
                     onValueChange = { startTime = it },
@@ -248,7 +262,8 @@ fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
 
                 Spacer(modifier = Modifier.size(10.dp))
 
-                Text("End Time:")
+                Text("End Time:", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = endTime,
                     onValueChange = { endTime = it },
@@ -326,22 +341,77 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
     var endTime by remember { mutableStateOf(time.endTime.toString()) }
     var showError by remember { mutableStateOf(false) }
     var showDateError by remember { mutableStateOf(false) }
+    val openDialogModule = remember { mutableStateOf(false)  }
     AlertDialog(
-        title = {Text(text = "Add a Day to Your Schedule")},
+        title = {Text(text = "Edit Schedule Item ", modifier = Modifier,
+            style = MaterialTheme.typography.headlineMedium)},
         text = {Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ){
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Module Code:")
-                TextField(
-                    value = moduleCode,
-                    onValueChange = { moduleCode = it },
-                    label = { Text("Module Code") })
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Module Code:", modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall)
+                    Box(
+                        modifier = Modifier
+                            .clickable { openDialogModule.value = true }
+                    ) {
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = "Add Module",
+                        )
+                    }
+                    if (openDialogModule.value) {
+                        ModuleCreateDialog(openDialog = openDialogModule, openDialog2 = openDialog)
+                    }
+                }
+                val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
+                if (modules.isNotEmpty()) {
+                    val moduleTitles = makeArrayOfModuleCodes(modules)
 
+                    var expanded by remember { mutableStateOf(false) }
+                    var selectedText by remember { mutableStateOf(moduleTitles[0]) }
+
+
+                    Row {
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { expanded = !expanded }) {
+                            TextField(
+                                value = selectedText,
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                modifier = Modifier.menuAnchor()
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }) {
+                                moduleTitles.forEach { item ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = item) },
+                                        onClick = {
+                                            selectedText = item
+                                            expanded = false
+                                            //Toast.makeText(context, item, Toast.LENGTH_SHORT)
+                                        })
+
+                                }
+                            }
+                        }
+                    }
+                    moduleCode = selectedText
+                }
                 Spacer(modifier = Modifier.size(10.dp))
 
-                Text("Start Time:")
+                Text("Start Time:", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = startTime,
                     onValueChange = { startTime = it },
@@ -349,7 +419,8 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
 
                 Spacer(modifier = Modifier.size(10.dp))
 
-                Text("End Time:")
+                Text("End Time:", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = endTime,
                     onValueChange = { endTime = it },
@@ -357,6 +428,7 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
                 Spacer(modifier = Modifier.size(10.dp))
             }
         }},
+
         onDismissRequest = {openDialog.value = false},
         dismissButton = {
             Button(onClick = { openDialog.value = false})
@@ -409,46 +481,66 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
 
 @Composable
 fun DialogView(openDialog: MutableState<Boolean>, openDialogEdit: MutableState<Boolean>, time: TimetableEntity ){
-    AlertDialog(
-        title = {Text(text = "Lecture")},
-        text = {Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-        ){
-            Text(
-                text = "Module Title: \n ${time.moduleCode} ",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
-            Text(
-                text = "Module Code: \n ${time.moduleCode} ",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
-            Text(
-                text = "Time: \n ${time.startTime} - ${time.endTime}",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
+    val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
+    if (modules.isNotEmpty()) {
+        val module = findModule(modules, time.moduleCode)
+        AlertDialog(
+            title = { Text(text = "Lecture", modifier = Modifier,
+                style = MaterialTheme.typography.headlineMedium) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = "Module Title: \n ${module.moduleTitle} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Module Code: \n ${time.moduleCode} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Latitude: \n ${module.lat} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Longitude: \n ${module.long} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Time: \n ${time.startTime} - ${time.endTime}",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
 
-        }}
-        ,
-        onDismissRequest = {openDialog.value = false},
-        dismissButton = {
-            Button(onClick = { openDialog.value = false})
-            {
-                Text(text = "Dismiss")
+                }
+            },
+            onDismissRequest = { openDialog.value = false },
+            dismissButton = {
+                Button(onClick = { openDialog.value = false })
+                {
+                    Text(text = "Dismiss")
+                }
+            },
+            confirmButton = {
+                Button(onClick =
+                {
+                    openDialogEdit.value =
+                        true //Bring the user to a part that allows them to edit the details
+                    openDialog.value = false
+                }
+                )
+                {
+                    Text(text = "Edit")
+                }
             }
-        },
-        confirmButton = {
-            Button(onClick =
-            {
-                openDialogEdit.value = true //Bring the user to a part that allows them to edit the details
-                openDialog.value = false
-            }
-            )
-            {
-                Text(text = "Edit")
-            }
-        }
-    )
+        )
+    }
 }
 
 //This is used to delete a timetable entry from the database, when sizyk merges with master
@@ -456,46 +548,68 @@ fun DialogView(openDialog: MutableState<Boolean>, openDialogEdit: MutableState<B
 @Composable
 fun DialogDelete( openDialog: MutableState<Boolean>, time: TimetableEntity){
     val viewModel = viewModel<ScheduleViewModel>()
-    AlertDialog(
-        title = {Text(text = "Are you sure you want to delete the following lecture from your schedule?")},
-        text = {Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-        ){
-            Text(
-                text = "Module Code: \n ${time.moduleCode} ",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
-            Text(
-                text = "Time: \n ${time.startTime} - ${time.endTime}",
-                modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall)
+    val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
+    if (modules.isNotEmpty()) {
+        val module = findModule(modules, time.moduleCode)
+        AlertDialog(
+            title = {Text(text = "Are you sure you want to delete the following lecture from your schedule?")},
+            text = {Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+            ){
+                    Text(
+                        text = "Module Title: \n ${module.moduleTitle} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Module Code: \n ${time.moduleCode} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Latitude: \n ${module.lat} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Longitude: \n ${module.long} ",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Time: \n ${time.startTime} - ${time.endTime}",
+                        modifier = Modifier,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
 
-        }}
-        ,
-        onDismissRequest = {openDialog.value = false},
-        dismissButton = {
-            Button(onClick = { openDialog.value = false })
-            {
-                Text(text = "Dismiss")
             }
-        },
+            ,
+            onDismissRequest = {openDialog.value = false},
+            dismissButton = {
+                Button(onClick = { openDialog.value = false })
+                {
+                    Text(text = "Dismiss")
+                }
+            },
 
-        confirmButton = {
-            Button(onClick =
-            {
-                //Currently deletes the timetable of it outright
-                viewModel.deleteTimetable(time)
-                openDialog.value = false},
-                colors = ButtonDefaults.buttonColors( containerColor = Color.Red)
-            )
-            {
-                Text(text = "Delete")
-            }
-        }
-
-    )
+            confirmButton = {
+                Button(onClick =
+                {
+                    //Currently deletes the timetable of it outright
+                    viewModel.deleteTimetable(time)
+                    openDialog.value = false},
+                    colors = ButtonDefaults.buttonColors( containerColor = Color.Red)
+                )
+                {
+                    Text(text = "Delete")
+                }
+                }
+        )
+    }
 }
+
 
 @Composable
 fun CreateButtons(
@@ -503,51 +617,65 @@ fun CreateButtons(
     val openDialogView = remember { mutableStateOf(false)  }
     val openDialogDelete = remember { mutableStateOf(false)  }
     val openDialogEdit = remember{ mutableStateOf(false)  }
-    if (openDialogView.value) {
-        DialogView(openDialogView,openDialogEdit, time) //This brings up the view alert
-    }
-    if (openDialogDelete.value) {
-        DialogDelete(openDialogDelete, time) //This brings up the delete alert
-    }
-    if (openDialogEdit.value) {
-        DialogEdit( openDialog = openDialogEdit, time = time) //This brings up the edit alert
-    }
-    Card(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .height(110.dp)
-            .padding(12.dp)
-    )
-    {
-        Row(
+    val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
+    if (modules.isNotEmpty()) {
+        val module = findModule(modules, time.moduleCode)
+
+        if (openDialogView.value) {
+            DialogView(openDialogView, openDialogEdit, time) //This brings up the view alert
+        }
+        if (openDialogDelete.value) {
+            DialogDelete(openDialogDelete, time) //This brings up the delete alert
+        }
+        if (openDialogEdit.value) {
+            DialogEdit(openDialog = openDialogEdit, time = time) //This brings up the edit alert
+        }
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp)
-                .height(90.dp)
-        ) {
-
-            Box(modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .clickable { openDialogView.value = true } //This is to let the user view the entire module data
+                .background(MaterialTheme.colorScheme.background)
+                .height(140.dp)
+                .padding(12.dp)
+        )
+        {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(6.dp)
+                    .height(120.dp)
             ) {
-                Spacer(modifier = Modifier.size(16.dp))
-                Column {
-                    Text(text = time.moduleCode, style = MaterialTheme.typography.headlineSmall) //This is going to be the moduleName
-                    Text(text = "Module code: ${time.moduleCode}")
-                    Text(text = "Time: ${time.startTime} - ${time.endTime}")
 
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clickable {
+                        openDialogView.value = true
+                    } //This is to let the user view the entire module data
+                ) {
+                    Spacer(modifier = Modifier.size(16.dp))
+                    Column {
+                        Text(
+                            text = module.moduleTitle,
+                            style = MaterialTheme.typography.headlineSmall
+                        ) //This is going to be the moduleName
+                        Text(text = "Module Code: ${time.moduleCode} ")
+                        Text(text = "Latitude: ${module.lat} Longitude: ${module.long}")
+                        Text(text = "Time: ${time.startTime} - ${time.endTime}")
+
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.size(8.dp))
+                Spacer(modifier = Modifier.size(8.dp))
 
-            Box( modifier = Modifier
-                .width(40.dp)
-                .fillMaxHeight()
-                .clickable { openDialogDelete.value = true }// This will remove the module from the user's view
-            ) {
-                Icon(Icons.Filled.Delete, contentDescription = "Delete", Modifier.fillMaxSize())
+                Box(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .fillMaxHeight()
+                        .clickable {
+                            openDialogDelete.value = true
+                        }// This will remove the module from the user's view
+                ) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Delete", Modifier.fillMaxSize())
+                }
             }
         }
     }
