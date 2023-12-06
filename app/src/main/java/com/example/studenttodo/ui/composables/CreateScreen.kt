@@ -2,68 +2,48 @@ package com.example.studenttodo.ui.composables
 
 import android.content.ContentResolver
 import android.graphics.ImageDecoder
-import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
+import com.example.studenttodo.ui.composables.components.ModuleCreateDialog
+import com.example.studenttodo.ui.composables.components.SelectDate
+import com.example.studenttodo.ui.composables.components.SelectLocation
+import com.example.studenttodo.ui.composables.components.SelectOrCreateModule
+import com.example.studenttodo.ui.composables.components.SelectTime
 import com.example.studenttodo.viewmodels.CreateViewModel
 import java.time.LocalDate
 import java.time.LocalTime
@@ -105,7 +85,6 @@ fun displaySucess(){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen() {
-    val context = LocalContext.current
     val viewModel = viewModel<CreateViewModel>()
     var openDialog = remember { mutableStateOf(false) }
 
@@ -123,7 +102,6 @@ fun CreateScreen() {
     ) {
         var taskname by remember { mutableStateOf("") }
         var taskdescription by remember { mutableStateOf("") }
-        var locationradius by remember { mutableStateOf("") }
 
         Row {
             Text("Task Name")
@@ -178,9 +156,6 @@ fun CreateScreen() {
         var time by remember { mutableStateOf("") }
 
 
-        var day by remember { mutableStateOf("") }
-        var month by remember { mutableStateOf("") }
-        var year by remember { mutableStateOf("") }
         var showDateTimeFields by remember { mutableStateOf(false) }
 
         Row(
@@ -194,143 +169,35 @@ fun CreateScreen() {
         }
 
         if (showDateTimeFields) {
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier.width(70.dp),
-                    value = day,
-                    onValueChange = { textInput ->
-
-                        day = textInput.take(2)
-
-                    },
-                    label = { Text("DD") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-
-                Text("/")
-
-                OutlinedTextField(
-                    modifier = Modifier.width(70.dp),
-                    value = month,
-                    onValueChange = { textInput ->
-
-                        month = textInput.take(2)
-
-                    },
-                    label = { Text("MM") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-
-                Text("/")
-
-
-                OutlinedTextField(
-                    modifier = Modifier.width(80.dp),
-                    value = year,
-                    onValueChange = { textInput ->
-                        year = textInput.take(4)
-
-                    },
-                    label = { Text("YYYY") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
+            fun updateSelectedDate(d: String, m: String, y: String){
+                date = d.plus("/").plus(m).plus("/").plus(y)
             }
-            date = day.plus("/").plus(month).plus("/").plus(year)
+            SelectDate(date = date, updateSelectedDate = ::updateSelectedDate)
+
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            var enteredHours by remember { mutableStateOf("") }
-            var enteredMinutes by remember { mutableStateOf("") }
-
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Hours Text Field
-                OutlinedTextField(
-                    modifier = Modifier.width(70.dp),
-                    value = enteredHours,
-                    onValueChange = { newInput ->
-
-                        if (newInput.toIntOrNull() in 0..24) {
-                            enteredHours = newInput.take(2)
-                        }
-                    },
-                    label = { Text("HH") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-
-                Text(":")
-
-
-                OutlinedTextField(
-                    modifier = Modifier.width(70.dp),
-                    value = enteredMinutes,
-                    onValueChange = { newInput ->
-
-                        if (newInput.toIntOrNull() in 0..59) {
-                            enteredMinutes = newInput.take(2)
-                        }
-                    },
-                    label = { Text("MM") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
+            fun updateSelectedTime(h: String, m: String){
+                time = time.plus(h).plus(":").plus(m)
             }
+            SelectTime(time =  time, updatedSelectedTime = ::updateSelectedTime )
 
-            Spacer(modifier = Modifier.height(16.dp))
-            time = time.plus(enteredHours).plus(":").plus(enteredMinutes)
 
         }
-
-        var showLocation by remember { mutableStateOf(false) }
-
         var longitude by remember { mutableStateOf("") }
         var latitude by remember { mutableStateOf("") }
+        var locationradius by remember { mutableStateOf("") }
 
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { showLocation = !showLocation }
-        ) {
-            Checkbox(
-                checked = showLocation,
-                onCheckedChange = { showLocation = it })
-            Text("Add a location")
+        fun updatedSelectedLocation(lon: String, lat: String, radius: String){
+            longitude = lon
+            latitude = lat
+            locationradius = radius
         }
 
-        if (showLocation) {
-            OutlinedTextField(
-                modifier = Modifier.width(120.dp),
-                value = longitude,
-                onValueChange = { longitude = it },
-                label = { Text("longitude") })
-            OutlinedTextField(
-                modifier = Modifier.width(120.dp),
-                value = latitude,
-                onValueChange = { latitude = it },
-                label = { Text("latitude") })
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                modifier = Modifier.width(120.dp),
-                value = locationradius,
-                onValueChange = { locationradius = it },
-                label = { Text("radius") })
-        }
+        SelectLocation(lon = longitude,
+            lat = latitude,
+            radius = locationradius,
+            updateSelectedLoc = ::updatedSelectedLocation)
 
 
         var showImage by remember { mutableStateOf(false) }
@@ -380,73 +247,18 @@ fun CreateScreen() {
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        val moduleScope = rememberCoroutineScope()
-        val modules by viewModel.modules.collectAsState(initial = emptyList())
         var moduleCode = ""
-        Text(text = "Module Code")
-        if (modules.size != 0) {
-            val moduleTitles = makeArrayOfModuleCodes(modules)
-
-            var expanded by remember { mutableStateOf(false) }
-            var selectedText by remember { mutableStateOf(moduleTitles[0]) }
-
-
-            Row {
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }) {
-                    TextField(
-                        value = selectedText,
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.menuAnchor()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }) {
-                        moduleTitles.forEach { item ->
-                            DropdownMenuItem(
-                                text = { Text(text = item) },
-                                onClick = {
-                                    selectedText = item
-                                    expanded = false
-                                    Toast.makeText(context, item, Toast.LENGTH_SHORT)
-                                })
-
-                        }
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        .width(50.dp)
-                        .fillMaxHeight()
-                        .clickable { openDialog.value = true }
-                ) {
-                    Icon(
-                        Icons.Filled.Add,
-                        contentDescription = "Add Module",
-                        Modifier.fillMaxSize()
-                    )
-                }
-            }
-            moduleCode = selectedText
+        fun updateSelectedDialog (open: Boolean){
+            openDialog.value = open
         }
-        else {
-            Box(
-                modifier = Modifier
-                    .width(50.dp)
-                    .fillMaxHeight()
-                    .clickable { openDialog.value = true }
-            ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = "Add Module",
-                    Modifier.fillMaxSize()
-                )
-            }
+        fun updateSelectedModuleCode(mc: String) {
+            moduleCode = mc
         }
-
+        SelectOrCreateModule(
+            rowModifier = Modifier.width(250.dp),
+            openDialog = ::updateSelectedDialog,
+            updateSelectedModuleCode = ::updateSelectedModuleCode
+        )
 
         var showError by remember { mutableStateOf(false) }
         var showDateError by remember { mutableStateOf(false) }
@@ -459,7 +271,7 @@ fun CreateScreen() {
             if (taskname.isNotEmpty() && taskdescription.isNotEmpty()) {
 
                 val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+                val timeFormatter = DateTimeFormatter.ofPattern("hh:mm")
                 try {
                     lDate = LocalDate.parse(date, dateFormatter)
                     lTime = LocalTime.parse(time, timeFormatter)
@@ -506,79 +318,6 @@ fun CreateScreen() {
     }
 
 
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
-    val viewModel = viewModel<CreateViewModel>()
-    var code by remember { mutableStateOf("") }
-    var lat by remember { mutableStateOf("") }
-    var long by remember { mutableStateOf("") }
-    var moduleTitle by remember { mutableStateOf("") }
-    AlertDialog(
-        title = { Text(text = "Create Module")},
-        text = {
-            Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Module Code")
-                TextField(
-                    value = code,
-                    onValueChange = { code = it },
-                    label = { Text(text = "Module Code") })
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text(text = "Latitude")
-                TextField(
-                    value = lat,
-                    onValueChange = { lat = it },
-                    label = { Text(text = "Latitude") })
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text(text = "Longitude")
-                TextField(
-                    value = long,
-                    onValueChange = { long = it },
-                    label = { Text(text = "Longitude") })
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text(text = "Module Title")
-                TextField(
-                    value = moduleTitle,
-                    onValueChange = { moduleTitle = it },
-                    label = { Text(text = "Module Title") })
-                Spacer(modifier = Modifier.size(10.dp))
-            }
-        },
-        onDismissRequest = { openDialog.value = false },
-        dismissButton = {
-            Button(onClick = { openDialog.value = false})
-            {
-                Text(text = "Dismiss")
-            }
-        },
-        confirmButton = {
-            Button(onClick = {
-                val module = ModuleEntity(
-                    moduleCode = code,
-                    lat = lat,
-                    long = long,
-                    moduleTitle = moduleTitle
-                )
-                viewModel.createModule(module = module)
-                openDialog.value = false
-            }) {
-                Text(text = "Create Module")
-            }
-        })
-}
-
-fun makeArrayOfModuleCodes(modules: List<ModuleEntity>) : ArrayList<String> {
-    var moduleCodes = ArrayList<String>()
-    for (module in modules) {
-        moduleCodes.add(module.moduleCode)
-    }
-
-    return moduleCodes
 }
 
 
