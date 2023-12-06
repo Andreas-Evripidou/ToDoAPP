@@ -1,6 +1,9 @@
 package com.example.studenttodo.viewmodels
 
 import android.app.Application
+import android.graphics.Color
+import android.util.Log
+import androidx.compose.material3.MaterialTheme
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studenttodo.data.ToDoDatabase
@@ -15,6 +18,18 @@ internal class HomeViewModel (app: Application): AndroidViewModel(app){
 
     fun deleteToDo(toDo: ToDoEntity) = viewModelScope.launch {
         dao.delete(toDo)
+    }
+
+    fun getBorderColor(toDo: ToDoEntity): Int {
+        var borderColor = when (toDo.priority){
+            0 ->  Color.GREEN
+            1 ->  Color.YELLOW
+            2 -> Color.RED
+            else ->{
+                Color.WHITE
+            }
+        }
+        return borderColor
     }
 
     fun viewMore (toDo: ToDoEntity) = viewModelScope.launch {

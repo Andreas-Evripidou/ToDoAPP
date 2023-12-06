@@ -1,19 +1,25 @@
 package com.example.studenttodo.entities
 
+import androidx.annotation.NonNull
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
-import java.sql.Time
-import java.time.DayOfWeek
 import java.time.LocalTime
+import kotlin.reflect.KClass
 
-@Entity(TimetableEntity.TABLE_NAME)
+@Entity(tableName = TimetableEntity.TABLE_NAME, foreignKeys = [ForeignKey(entity = ModuleEntity::class,
+    parentColumns = ["moduleCode"],
+    childColumns = ["moduleCode"],
+    onDelete = ForeignKey.NO_ACTION)])
 data class TimetableEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val day: String, // Todo: change to Enum or DayOfWeek
     val startTime: LocalTime,
     val endTime: LocalTime,
-    val moduleCode: String //Todo: Foreign Key
+    val moduleCode: String,
+    val status: Int
 ) {
     companion object {
         const val TABLE_NAME = "Timetable"
