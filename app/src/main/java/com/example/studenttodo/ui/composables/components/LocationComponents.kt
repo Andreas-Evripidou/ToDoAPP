@@ -22,15 +22,24 @@ import com.example.studenttodo.viewmodels.LocationViewModel
 * */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectLocation(lon: String, lat: String, radius: String, optional: Boolean= true, updateSelectedLoc: (lon: String, lat: String, radius: String) -> Unit){
+// ToDo: Since there are more than 3 parameters, we should use an object
+fun SelectLocation(
+    lon: String,
+    lat: String,
+    radius: String,
+    optional: Boolean= true,
+    edit: Boolean= false,
+    updateSelectedLoc: (lon: String, lat: String, radius: String) -> Unit){
 
-    var showLocation by remember { mutableStateOf(false) }
     var useCurrentLocation by remember { mutableStateOf(false) }
     val locationViewModel = viewModel<LocationViewModel>()
 
     var longitude by remember { mutableStateOf(lon) }
     var latitude by remember { mutableStateOf(lat) }
     var locationradius by remember { mutableStateOf(radius) }
+    val text = if (edit) "Edit Location" else "Add Location"
+    var showLocation by remember { mutableStateOf(lon.isNotEmpty() && lat.isNotEmpty() && radius.isNotEmpty()) }
+
 
     // If location is optional, display the checkbox
     if (optional) {
@@ -41,7 +50,7 @@ fun SelectLocation(lon: String, lat: String, radius: String, optional: Boolean= 
             Checkbox(
                 checked = showLocation,
                 onCheckedChange = { showLocation = it })
-            Text("Add a location")
+            Text(text)
         }
     // Else, always show the location options
     } else {
@@ -59,14 +68,15 @@ fun SelectLocation(lon: String, lat: String, radius: String, optional: Boolean= 
                 checked = useCurrentLocation,
                 onCheckedChange = {
                     useCurrentLocation = it
-
+                    longitude = locationViewModel.longitude.toString()
+                    latitude = locationViewModel.latitude.toString()
                     // If using current location,
                     // updated the Selected location to the current one
                     if(useCurrentLocation){
                         updateSelectedLoc(
-                            locationViewModel.longitude.toString(),
-                            locationViewModel.latitude.toString(),
-                            radius)
+                            longitude,
+                            latitude,
+                            locationradius)
                     }
 
                 })
@@ -81,14 +91,14 @@ fun SelectLocation(lon: String, lat: String, radius: String, optional: Boolean= 
         OutlinedTextField(
             value = longitude,
             onValueChange = { longitude = it
-                            updateSelectedLoc(longitude, latitude, radius)},
+                            updateSelectedLoc(longitude, latitude, locationradius)},
             label = { Text("longitude") })
 
         Text(text = "Latitude")
         OutlinedTextField(
             value = latitude,
             onValueChange = { latitude = it
-                updateSelectedLoc(longitude, latitude, radius)},
+                updateSelectedLoc(longitude, latitude, locationradius)},
             label = { Text("latitude") })
     }
     // If showing locating, display the radius text field
@@ -97,7 +107,7 @@ fun SelectLocation(lon: String, lat: String, radius: String, optional: Boolean= 
         OutlinedTextField(
             value = locationradius,
             onValueChange = { locationradius = it
-                updateSelectedLoc(longitude, latitude, radius)},
+                updateSelectedLoc(longitude, latitude, locationradius)},
             label = { Text("radius") })
     }
 
