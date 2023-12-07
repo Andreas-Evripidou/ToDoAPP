@@ -199,7 +199,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
             Spacer(modifier = Modifier.height(16.dp))
 
             fun updateSelectedTime(h: String, m: String){
-                time = time.plus(h).plus(":").plus(m)
+                time = h.plus(":").plus(m)
             }
             SelectTime(time =  time, updatedSelectedTime = ::updateSelectedTime )
 
