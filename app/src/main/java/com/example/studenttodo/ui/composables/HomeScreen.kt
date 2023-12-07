@@ -58,6 +58,10 @@ fun HomeScreen() {
         horizontalAlignment = Alignment.Start,
     )
     {
+        var bodyText = if (todos.isEmpty()) "You have nothing in your Todo list! " else "Todo List:"
+        Text(text = bodyText,
+            style = MaterialTheme.typography.headlineSmall)
+
         todos.forEach { todo ->
             displayTodo(
                 todo = todo,
@@ -127,7 +131,8 @@ fun displayTodo (
 fun viewEditTodo(todo: ToDoEntity, onDismiss: () -> Unit){
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
-            modifier = Modifier.heightIn(max = 800.dp)
+            modifier = Modifier
+                .heightIn(max = 800.dp)
                 .background(MaterialTheme.colorScheme.background, RoundedCornerShape(8.dp))
                 ){
             Column(

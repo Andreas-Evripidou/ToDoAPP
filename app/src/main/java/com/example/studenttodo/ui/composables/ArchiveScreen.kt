@@ -137,6 +137,10 @@ fun ArchiveScreen(){
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start)
     {
+        var bodyText = if (todos.isEmpty()) "You haven't completed any Todos yet! " else "Completed Todos:"
+        Text(text = bodyText,
+            style = MaterialTheme.typography.headlineSmall)
+
         todos.forEach { todo ->
             ShowToDo(
                 todo = todo,
@@ -144,6 +148,7 @@ fun ArchiveScreen(){
                 onRestore = {archiveViewModel.restoreToDo(it)}
             )
         }
+
     }
 }
 

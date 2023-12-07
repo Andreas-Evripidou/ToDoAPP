@@ -9,7 +9,7 @@ import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.entities.TimetableEntity
 
-@Database(entities = [ToDoEntity::class,  ModuleEntity::class, TimetableEntity::class], version = 7, exportSchema = false)
+@Database(entities = [ToDoEntity::class,  ModuleEntity::class, TimetableEntity::class], version = 8, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class ToDoDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDAO

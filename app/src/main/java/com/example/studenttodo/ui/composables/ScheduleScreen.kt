@@ -50,7 +50,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.TimetableEntity
 import com.example.studenttodo.ui.composables.components.ModuleCreateDialog
+import com.example.studenttodo.ui.composables.components.SelectLocation
 import com.example.studenttodo.ui.composables.components.SelectOrCreateModule
+import com.example.studenttodo.ui.composables.components.SelectTime
 import com.example.studenttodo.ui.composables.components.makeArrayOfModuleCodes
 import com.example.studenttodo.viewmodels.CreateViewModel
 import com.example.studenttodo.viewmodels.ScheduleViewModel
@@ -75,8 +77,7 @@ fun ScheduleScreen (modifier: Modifier = Modifier) {
         //This repeats for each data value matching the current day of the week
         val current = times.filter {it.day == weekday}
         current.forEach { time ->
-            CreateButtons(
-                time = time)}
+            if (time.status ==0){ CreateButtons(time=time)}}
 
         Row(
             modifier = Modifier
@@ -120,6 +121,20 @@ fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
     var showError by remember { mutableStateOf(false) }
     var showDateError by remember { mutableStateOf(false) }
     val openCreateModuleDialog = remember { mutableStateOf(false)  }
+    var latitude by remember { mutableStateOf("") }
+    var longitude by remember { mutableStateOf("") }
+    var locationradius by remember { mutableStateOf("") }
+    var itemType by remember { mutableStateOf("") }
+
+    fun updateSelectedItemType(type: String){
+        itemType = type
+    }
+
+    fun updatedSelectedLocation(lon: String, lat: String, radius: String){
+        longitude = lon
+        latitude = lat
+        locationradius = radius
+    }
 
     fun updateSelectedCreateModuleDialog (open: Boolean){
         openCreateModuleDialog.value = open
@@ -129,7 +144,7 @@ fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
     }
 
     AlertDialog(
-        title = {Text(text = "Add a Day to Your Schedule")},
+        title = {Text(text = "Add an Item")},
         text = {
             Column(
                 modifier = Modifier
@@ -145,21 +160,26 @@ fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
                     }
                     Spacer(modifier = Modifier.size(10.dp))
 
+                    ItemTypeDropDown(currentType = "Lecture", updateSelectedType = ::updateSelectedItemType)
+
+                    Spacer(modifier = Modifier.size(10.dp))
+
                     Text("Start Time:", style = MaterialTheme.typography.headlineSmall)
-                    TextField(
-                        value = startTime,
-                        onValueChange = { startTime = it },
-                        label = { Text("Start Time in HH:mm format") })
+                    fun updateSelectedStartTime(h: String, m: String){
+                        startTime = h.plus(":").plus(m)
+                    }
+                    SelectTime(time =  startTime, updatedSelectedTime = ::updateSelectedStartTime )
 
                     Spacer(modifier = Modifier.size(10.dp))
 
                     Text("End Time:",style = MaterialTheme.typography.headlineSmall)
-                    TextField(
-                        value = endTime,
-                        onValueChange = { endTime = it },
-                        label = { Text("End Time in HH:mm format") })
+                    fun updateSelectedEndTime(h: String, m: String){
+                        endTime = h.plus(":").plus(m)
+                    }
+                    SelectTime(time =  endTime, updatedSelectedTime = ::updateSelectedEndTime )
 
                     Spacer(modifier = Modifier.size(10.dp))
+                    SelectLocation(lon = longitude, lat = latitude, radius = locationradius, updateSelectedLoc = ::updatedSelectedLocation)
                 }
 
             }
@@ -183,6 +203,10 @@ fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
                         startTime = newStartTime,
                         endTime = newEndTime,
                         moduleCode = moduleCode,
+                        long = longitude,
+                        lat = latitude,
+                        radius = locationradius,
+                        itemType = itemType,
                         status = 0
                     )
                     viewModel.createTimetable(entry)
@@ -233,6 +257,27 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
     var showError by remember { mutableStateOf(false) }
     var showDateError by remember { mutableStateOf(false) }
     val openDialogModule = remember { mutableStateOf(false)  }
+    var itemType by remember { mutableStateOf(time.itemType) }
+
+    var latitude by remember { mutableStateOf("") }
+    var longitude by remember { mutableStateOf("") }
+    var locationradius by remember { mutableStateOf("") }
+
+    fun updateSelectedItemType(type: String){
+        itemType = type
+    }
+    fun updatedSelectedLocation(lon: String, lat: String, radius: String){
+        longitude = lon
+        latitude = lat
+        locationradius = radius
+    }
+
+    fun updateSelectedModuleCode(mc: String) {
+        moduleCode = mc
+    }
+    fun updateSelectedCreateModuleDialog (open: Boolean){
+        openDialogModule.value = open
+    }
     AlertDialog(
         title = {Text(text = "Edit Schedule Item ", modifier = Modifier,
             style = MaterialTheme.typography.headlineMedium)},
@@ -262,61 +307,31 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
                         ModuleCreateDialog(openDialog = openDialogModule)
                     }
                 }
-                val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
-                if (modules.isNotEmpty()) {
-                    val moduleTitles = makeArrayOfModuleCodes(modules)
+                SelectOrCreateModule(openDialog = ::updateSelectedCreateModuleDialog,
+                    updateSelectedModuleCode = ::updateSelectedModuleCode)
+                Spacer(modifier = Modifier.size(10.dp))
 
-                    var expanded by remember { mutableStateOf(false) }
-                    var selectedText by remember { mutableStateOf(moduleTitles[0]) }
+                ItemTypeDropDown(currentType = time.itemType, updateSelectedType = ::updateSelectedItemType)
 
-
-                    Row {
-                        ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = { expanded = !expanded }) {
-                            TextField(
-                                value = selectedText,
-                                onValueChange = {},
-                                readOnly = true,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                modifier = Modifier.menuAnchor()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }) {
-                                moduleTitles.forEach { item ->
-                                    DropdownMenuItem(
-                                        text = { Text(text = item) },
-                                        onClick = {
-                                            selectedText = item
-                                            expanded = false
-                                            //Toast.makeText(context, item, Toast.LENGTH_SHORT)
-                                        })
-
-                                }
-                            }
-                        }
-                    }
-                    moduleCode = selectedText
-                }
                 Spacer(modifier = Modifier.size(10.dp))
 
                 Text("Start Time:", modifier = Modifier,
                     style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = startTime,
-                    onValueChange = { startTime = it },
-                    label = { Text("Start Time in HH:mm format") })
+                fun updateSelectedStartTime(h: String, m: String){
+                    startTime = h.plus(":").plus(m)
+                }
+                SelectTime(time =  startTime, updatedSelectedTime = ::updateSelectedStartTime )
 
                 Spacer(modifier = Modifier.size(10.dp))
 
                 Text("End Time:", modifier = Modifier,
                     style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = endTime,
-                    onValueChange = { endTime = it },
-                    label = { Text("End Time in HH:mm format") })
+                fun updateSelectedEndTime(h: String, m: String){
+                    endTime = h.plus(":").plus(m)
+                }
+                SelectTime(time =  endTime, updatedSelectedTime = ::updateSelectedEndTime )
                 Spacer(modifier = Modifier.size(10.dp))
+                SelectLocation(lon = longitude, lat = latitude, radius = locationradius, updateSelectedLoc = ::updatedSelectedLocation)
             }
         }},
 
@@ -341,6 +356,10 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
                             startTime = newStartTime,
                             endTime = newEndTime,
                             moduleCode = moduleCode,
+                            itemType = itemType,
+                            long = longitude,
+                            lat = latitude,
+                            radius = locationradius,
                             status = 0
                         )
                         viewModel.editTimetable(entry)
@@ -406,16 +425,6 @@ fun DialogView(openDialog: MutableState<Boolean>, openDialogEdit: MutableState<B
                         style = MaterialTheme.typography.headlineSmall
                     )
                     Text(
-                        text = "Latitude: \n ${module.lat} ",
-                        modifier = Modifier,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Text(
-                        text = "Longitude: \n ${module.long} ",
-                        modifier = Modifier,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Text(
                         text = "Time: \n ${time.startTime} - ${time.endTime}",
                         modifier = Modifier,
                         style = MaterialTheme.typography.headlineSmall
@@ -467,16 +476,6 @@ fun DialogDelete( openDialog: MutableState<Boolean>, time: TimetableEntity){
                     )
                     Text(
                         text = "Module Code: \n ${time.moduleCode} ",
-                        modifier = Modifier,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Text(
-                        text = "Latitude: \n ${module.lat} ",
-                        modifier = Modifier,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Text(
-                        text = "Longitude: \n ${module.long} ",
                         modifier = Modifier,
                         style = MaterialTheme.typography.headlineSmall
                     )
@@ -560,7 +559,6 @@ fun CreateButtons(
                             style = MaterialTheme.typography.headlineSmall
                         ) //This is going to be the moduleName
                         Text(text = "Module Code: ${time.moduleCode} ")
-                        Text(text = "Latitude: ${module.lat} Longitude: ${module.long}")
                         Text(text = "Time: ${time.startTime} - ${time.endTime}")
 
                     }
@@ -582,5 +580,47 @@ fun CreateButtons(
         }
     }
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ItemTypeDropDown(currentType: String, updateSelectedType: (s: String) -> Unit){
+    val choices = listOf("Lecture", "Lab", "Seminar")
+    var selectedType by remember { mutableStateOf(currentType) }
+    Row {
+        Text("Timetable Item Type:",
+            style = MaterialTheme.typography.headlineSmall)
+        Text(" *", color = Color.Red)
+    }
+    var expanded by remember { mutableStateOf(false) }
+    Row (
+        verticalAlignment = Alignment.CenterVertically)
+    {
+        ExposedDropdownMenuBox(
+            modifier = Modifier.weight(2f),
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }) {
+            TextField(
+                value = selectedType,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }) {
+                choices.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item) },
+                        onClick = {
+                            selectedType = item
+                            updateSelectedType(item)
+                            expanded = false
+                        })
+                }
+            }
+        }
+    }
 }
 
