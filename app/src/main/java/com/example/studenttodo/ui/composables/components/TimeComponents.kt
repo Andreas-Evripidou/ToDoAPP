@@ -1,5 +1,6 @@
 package com.example.studenttodo.ui.composables.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,7 +32,7 @@ fun SelectTime(time: String, updatedSelectedTime: (h: String, m: String) -> Unit
     var enteredMinutes by remember { mutableStateOf("") }
 
     val timeParts = time.split(":")
-    if (timeParts.size == 3) {
+    if (timeParts.size == 2) {
         enteredHours = timeParts[0]
         enteredMinutes = timeParts[1]
     }

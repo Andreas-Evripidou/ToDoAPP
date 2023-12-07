@@ -1,6 +1,7 @@
 package com.example.studenttodo.viewmodels
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studenttodo.data.ToDoDatabase
@@ -34,6 +35,12 @@ internal class ArchiveViewModel (app: Application): AndroidViewModel(app){
             status = 2
         )
         dao.update(toDo)
+
+        val text = "Todo Deleted!"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(context, text, duration) // in Activity
+        toast.show()
     }
 
     fun restoreToDo(toDo: ToDoEntity) = viewModelScope.launch {
@@ -56,5 +63,11 @@ internal class ArchiveViewModel (app: Application): AndroidViewModel(app){
             status = 0
         )
         dao.update(toDo)
+
+        val text = "Todo Restored!"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(context, text, duration) // in Activity
+        toast.show()
     }
 }

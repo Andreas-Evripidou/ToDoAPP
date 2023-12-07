@@ -1,6 +1,7 @@
 package com.example.studenttodo.viewmodels
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studenttodo.data.ToDoDatabase
@@ -22,8 +23,14 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
     fun createToDo (toDo: ToDoEntity) = viewModelScope.launch {
         dao.insert(toDo)
     }
-    fun createOrUpdateToDo (toDo: ToDoEntity) = viewModelScope.launch {
+    fun createOrUpdateToDo (toDo: ToDoEntity, edit: Boolean) = viewModelScope.launch {
         dao.updateOrInsert(toDo)
+
+        val text = if (edit) "Todo Updated!" else "Todo Created!"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(context, text, duration) // in Activity
+        toast.show()
     }
     fun emptyTodo(): ToDoEntity {
         return ToDoEntity(
@@ -35,7 +42,7 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
             priority = 1,
             longitude = "",
             range = "",
-            status = 1,
+            status = 0,
             description = "",
             picture = "",
             createdLatitude = "",

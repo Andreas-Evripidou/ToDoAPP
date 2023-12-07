@@ -1,6 +1,7 @@
 package com.example.studenttodo.viewmodels
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studenttodo.data.TimetableDAO
@@ -21,9 +22,21 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
     }
     fun editTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         dao.update(timetable)
+
+        val text = "Timetable Item Updated!"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(context, text, duration) // in Activity
+        toast.show()
     }
     fun createTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         dao.insert(timetable)
+
+        val text = "Timetable Item Created!"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(context, text, duration) // in Activity
+        toast.show()
     }
     fun deleteTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         val timetable = TimetableEntity(
@@ -35,6 +48,12 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
         status = 1
         )
         dao.update(timetable)
+
+        val text = "Timetable Item Deleted!"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(context, text, duration) // in Activity
+        toast.show()
     }
 
 

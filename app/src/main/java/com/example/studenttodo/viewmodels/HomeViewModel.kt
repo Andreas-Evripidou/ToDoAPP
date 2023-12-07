@@ -23,9 +23,9 @@ internal class HomeViewModel (app: Application): AndroidViewModel(app){
 
     fun getBorderColor(toDo: ToDoEntity): Int {
         var borderColor = when (toDo.priority){
-            0 ->  Color.GREEN
-            1 ->  Color.YELLOW
-            2 -> Color.RED
+            1 ->  Color.GREEN
+            2 ->  Color.YELLOW
+            3 -> Color.RED
             else ->{
                 Color.WHITE
             }

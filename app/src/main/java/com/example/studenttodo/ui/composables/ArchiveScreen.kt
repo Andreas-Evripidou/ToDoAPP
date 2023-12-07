@@ -30,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,9 +45,19 @@ fun ShowToDo(
     onDelete: (ToDoEntity) -> Unit,
     onRestore: (ToDoEntity) -> Unit
 ){
-    val openDialog = remember { mutableStateOf(false)  }
-    if (openDialog.value) {
-        DialogDelete(onDelete = onDelete, todo, openDialog)
+    var openViewEdit by remember { mutableStateOf(false) }
+
+    fun onDismiss (){
+        openViewEdit = false
+    }
+
+    if (openViewEdit){
+        viewEditTodo(todo = todo, ::onDismiss)
+    }
+
+    val openDeleteDialog = remember { mutableStateOf(false)  }
+    if (openDeleteDialog.value) {
+        DialogDelete(onDelete = onDelete, todo, openDeleteDialog)
     }
     Card (modifier = Modifier
         .background(MaterialTheme.colorScheme.background)
@@ -61,7 +72,7 @@ fun ShowToDo(
             Box(modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable { /* TODO add the ToDo information dialog*/ }
+                .clickable { openViewEdit = true }
             ) {
 
                 Column (modifier = Modifier.padding(start = 6.dp)){
@@ -83,7 +94,7 @@ fun ShowToDo(
             Box(modifier = Modifier
                 .width(50.dp)
                 .fillMaxHeight()
-                .clickable { openDialog.value = true }
+                .clickable { openDeleteDialog.value = true }
             ) {
                 Icon(Icons.Filled.Delete, contentDescription = "Delete", Modifier.fillMaxSize())
             }
