@@ -40,7 +40,7 @@ import com.example.studenttodo.viewmodels.CreateViewModel
 * */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModuleCode: (mc: String) -> Unit, rowModifier: Modifier = Modifier) {
+fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModuleCode: (mc: String) -> Unit, rowModifier: Modifier = Modifier, moduleCode: String = "") {
     Text("Module Code:")
     Row (
         modifier = rowModifier,
@@ -52,6 +52,12 @@ fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModu
 
             var expanded by remember { mutableStateOf(false) }
             var selectedText by remember { mutableStateOf(moduleTitles[0]) }
+            if (moduleCode != "" && moduleCode in moduleTitles){
+                selectedText = moduleCode
+            } else{
+                updateSelectedModuleCode(selectedText)
+            }
+
 
             ExposedDropdownMenuBox(
                 modifier = Modifier.weight(0.8f),
