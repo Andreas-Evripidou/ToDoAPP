@@ -1,5 +1,6 @@
 package com.example.studenttodo.ui.composables
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,9 +54,9 @@ import java.time.format.DateTimeParseException
 
 
 @Composable
-fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
+fun ScheduleScreen (modifier: Modifier = Modifier) {
     val times by viewModel<ScheduleViewModel>().timetable.collectAsState(initial = emptyList())
-    val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+    val weekdays: List<String> = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 
     //This is the day of the week, repeat for each work day of the week
     weekdays.forEach { weekday ->
@@ -428,7 +429,6 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
                 Spacer(modifier = Modifier.size(10.dp))
             }
         }},
-
         onDismissRequest = {openDialog.value = false},
         dismissButton = {
             Button(onClick = { openDialog.value = false})
@@ -609,7 +609,6 @@ fun DialogDelete( openDialog: MutableState<Boolean>, time: TimetableEntity){
         )
     }
 }
-
 
 @Composable
 fun CreateButtons(
