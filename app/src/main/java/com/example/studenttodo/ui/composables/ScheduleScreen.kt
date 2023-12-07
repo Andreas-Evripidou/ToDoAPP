@@ -328,8 +328,7 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
             Spacer(modifier = Modifier.size(10.dp))
 
             Text(
-                "Start Time:", modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall
+                "Start Time:",
             )
             TextField(
                 value = startTime,
