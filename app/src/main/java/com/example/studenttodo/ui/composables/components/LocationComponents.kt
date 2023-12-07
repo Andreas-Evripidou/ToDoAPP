@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,28 +58,34 @@ fun SelectLocation(
         showLocation = true
     }
 
+    fun onChecked(){
+
+        // If using current location,
+        // updated the Selected location to the current one
+        if(useCurrentLocation){
+            longitude = locationViewModel.longitude.toString()
+            latitude = locationViewModel.latitude.toString()
+            updateSelectedLoc(
+                longitude,
+                latitude,
+                locationradius)
+        }
+    }
+
     // If showing location and the current location is valid,
     // show the use current location checkbox
     if (showLocation && locationViewModel.valid){
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { useCurrentLocation = !useCurrentLocation }
+            modifier = Modifier.clickable { useCurrentLocation = !useCurrentLocation
+                onChecked()
+            }
         ) {
             Checkbox(
                 checked = useCurrentLocation,
                 onCheckedChange = {
                     useCurrentLocation = it
-                    longitude = locationViewModel.longitude.toString()
-                    latitude = locationViewModel.latitude.toString()
-                    // If using current location,
-                    // updated the Selected location to the current one
-                    if(useCurrentLocation){
-                        updateSelectedLoc(
-                            longitude,
-                            latitude,
-                            locationradius)
-                    }
-
+                    onChecked()
                 })
             Text("Use current location")
         }
@@ -87,14 +94,16 @@ fun SelectLocation(
     // If showing location but not using the current location
     // display the text fields for lon and lat
     if (showLocation && !useCurrentLocation) {
-        Text(text = "Longitude")
+        Text(text = "Longitude", modifier = Modifier,
+            style = MaterialTheme.typography.headlineSmall)
         OutlinedTextField(
             value = longitude,
             onValueChange = { longitude = it
                             updateSelectedLoc(longitude, latitude, locationradius)},
             label = { Text("longitude") })
 
-        Text(text = "Latitude")
+        Text(text = "Latitude", modifier = Modifier,
+            style = MaterialTheme.typography.headlineSmall)
         OutlinedTextField(
             value = latitude,
             onValueChange = { latitude = it
@@ -103,7 +112,8 @@ fun SelectLocation(
     }
     // If showing locating, display the radius text field
     if (showLocation) {
-        Text(text = "Location Radius")
+        Text(text = "Location Radius", modifier = Modifier,
+            style = MaterialTheme.typography.headlineSmall)
         OutlinedTextField(
             value = locationradius,
             onValueChange = { locationradius = it

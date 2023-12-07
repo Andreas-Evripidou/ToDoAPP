@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -41,60 +42,70 @@ import com.example.studenttodo.viewmodels.CreateViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModuleCode: (mc: String) -> Unit, rowModifier: Modifier = Modifier, moduleCode: String = "") {
-    Text("Module Code:")
-    Row (
-        modifier = rowModifier,
-        verticalAlignment = Alignment.CenterVertically)
-    {
-        val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
-        if (modules.isNotEmpty()) {
-            val moduleTitles = makeArrayOfModuleCodes(modules)
+    Column {
 
-            var expanded by remember { mutableStateOf(false) }
-            var selectedText by remember { mutableStateOf(moduleTitles[0]) }
-            if (moduleCode != "" && moduleCode in moduleTitles){
-                selectedText = moduleCode
-            } else{
-                updateSelectedModuleCode(selectedText)
-            }
+        Text(
+            "Module Code:", modifier = Modifier,
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Row(
+            modifier = rowModifier,
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
+            val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
+            if (modules.isNotEmpty()) {
+                val moduleTitles = makeArrayOfModuleCodes(modules)
+
+                var expanded by remember { mutableStateOf(false) }
+                var selectedText by remember { mutableStateOf(moduleTitles[0]) }
+                if (moduleCode != "" && moduleCode in moduleTitles) {
+                    selectedText = moduleCode
+                } else {
+                    updateSelectedModuleCode(selectedText)
+                }
 
 
-            ExposedDropdownMenuBox(
-                modifier = Modifier.weight(0.8f),
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }) {
-                TextField(
-                    value = selectedText,
-                    onValueChange = {},
-                    readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor()
-                )
-                ExposedDropdownMenu(
+                ExposedDropdownMenuBox(
+                    modifier = Modifier.weight(0.8f),
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }) {
-                    moduleTitles.forEach { item ->
-                        DropdownMenuItem(
-                            text = { Text(text = item) },
-                            onClick = {
-                                selectedText = item
-                                expanded = false
-                                updateSelectedModuleCode(selectedText)
-                                //Toast.makeText(context, item, Toast.LENGTH_SHORT)
-                            })
+                    onExpandedChange = { expanded = !expanded }) {
+                    TextField(
+                        value = selectedText,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier.menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }) {
+                        moduleTitles.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(text = item) },
+                                onClick = {
+                                    selectedText = item
+                                    expanded = false
+                                    updateSelectedModuleCode(selectedText)
+                                    //Toast.makeText(context, item, Toast.LENGTH_SHORT)
+                                })
+                        }
                     }
                 }
             }
-        }
-        Box(
-            modifier = Modifier.weight(0.2f).fillMaxHeight()
-                .clickable { openDialog(true) }
-        ) {
-            Icon(
-                Icons.Filled.Add,
-                contentDescription = "Add Module",
-                Modifier.fillMaxSize()
-            )
+            Box(
+                modifier = Modifier
+                    .weight(0.2f)
+                    .fillMaxHeight()
+                    .clickable { openDialog(true) }
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Add Module",
+                    Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }
@@ -132,7 +143,8 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
         title = { Text(text = "Create Module")},
         text = {
             Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Module Title")
+                Text(text = "Module Title", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = moduleTitle,
                     onValueChange = { moduleTitle = it },
@@ -140,7 +152,8 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
 
                 Spacer(modifier = Modifier.size(10.dp))
 
-                Text(text = "Module Code")
+                Text(text = "Module Code", modifier = Modifier,
+                    style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = code,
                     onValueChange = { code = it },

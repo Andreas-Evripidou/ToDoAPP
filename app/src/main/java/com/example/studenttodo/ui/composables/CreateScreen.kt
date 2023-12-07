@@ -10,23 +10,33 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -108,19 +118,24 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
         var taskDescription by remember { mutableStateOf(toDo.description) }
 
         Row {
-            Text("Task Name")
-            Text(
-                " *",
-                color = Color.Red
-            )
+            Text("Task Name", style = MaterialTheme.typography.headlineSmall)
+            Text(" *", color = Color.Red)
         }
-        OutlinedTextField(
-            value = taskName,
-            onValueChange = { taskName = it },
-            label = {
 
-                Text("task title")
-            })
+        Row {
+            Spacer(modifier = Modifier.weight(0.5f))
+            OutlinedTextField(
+                value = taskName,
+                onValueChange = { taskName = it },
+                label = {
+
+                    Text("task title")
+                },
+                modifier = Modifier.weight(2f)
+            )
+            Spacer(modifier = Modifier.weight(0.5f))
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         var moduleCode = toDo.moduleCode
@@ -130,45 +145,76 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
         fun updateSelectedModuleCode(mc: String) {
             moduleCode = mc
         }
-        SelectOrCreateModule(
-            rowModifier = Modifier.width(250.dp),
-            openDialog = ::updateSelectedDialog,
-            updateSelectedModuleCode = ::updateSelectedModuleCode,
-            moduleCode = moduleCode
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
         Row {
-            Text("Task Description")
-            Text(
-                " *",
-                color = Color.Red
-            )
+            Text("Task Description", style = MaterialTheme.typography.headlineSmall)
+            Text(" *", color = Color.Red)
         }
-        OutlinedTextField(
-            value = taskDescription,
-            onValueChange = { taskDescription = it },
-            label = { Text("task description") })
+        Row {
+            Spacer(modifier = Modifier.weight(0.5f))
+            OutlinedTextField(
+                value = taskDescription,
+                onValueChange = { taskDescription = it },
+                label = { Text("task description", style = MaterialTheme.typography.labelLarge) },
+                modifier = Modifier
+                    .heightIn(min = 112.dp)
+                    .weight(2f))// Minimum height for the text field
+            Spacer(modifier = Modifier.weight(0.5f))
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
-        val choices = listOf("low", "medium", "high")
+
+        Row{
+            Spacer(modifier = Modifier.weight(0.5f))
+            Box (modifier = Modifier.weight(2f)){
+                SelectOrCreateModule(
+                    rowModifier = Modifier.fillMaxWidth(),
+                    openDialog = ::updateSelectedDialog,
+                    updateSelectedModuleCode = ::updateSelectedModuleCode,
+                    moduleCode = moduleCode)
+            }
+            Spacer(modifier = Modifier.weight(0.5f))
+        }
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+        val choices = listOf("Low", "Medium", "High")
         val (priority, onSelected) = remember { mutableStateOf(choices[toDo.priority-1]) }
         Row {
-            Text("Task Priority")
-            Text(
-                " *",
-                color = Color.Red
-            )
+            Text("Task Priority", style = MaterialTheme.typography.headlineSmall)
+            Text(" *", color = Color.Red)
         }
-        choices.forEach { text ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = (text == priority),
-                    onClick = { onSelected(text) }
+        var expanded by remember { mutableStateOf(false) }
+        Row (
+            modifier = Modifier.width(150.dp),
+            verticalAlignment = Alignment.CenterVertically)
+        {
+            ExposedDropdownMenuBox(
+                modifier = Modifier.weight(0.8f),
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }) {
+                TextField(
+                    value = priority,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
                 )
-                Text(text)
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }) {
+                    choices.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(text = item) },
+                            onClick = {
+                                onSelected(item)
+                                expanded = false
+                            })
+                    }
+                }
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
 

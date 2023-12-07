@@ -50,6 +50,8 @@ import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.TimetableEntity
 import com.example.studenttodo.ui.composables.components.ModuleCreateDialog
 import com.example.studenttodo.ui.composables.components.SelectOrCreateModule
+import com.example.studenttodo.ui.composables.components.makeArrayOfModuleCodes
+import com.example.studenttodo.viewmodels.CreateViewModel
 import com.example.studenttodo.viewmodels.ScheduleViewModel
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -62,41 +64,41 @@ fun ScheduleScreen (modifier: Modifier = Modifier) {
     val weekdays: List<String> = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 
 
-        //This is the day of the week, repeat for each work day of the week
-            weekdays.forEach { weekday ->
-                Text(
-                    text = weekday,
-                    modifier = modifier,
-                    style = MaterialTheme.typography.headlineSmall
+    //This is the day of the week, repeat for each work day of the week
+    weekdays.forEach { weekday ->
+        Text(
+            text = weekday,
+            modifier = modifier,
+            style = MaterialTheme.typography.headlineSmall
+        )
+        //This repeats for each data value matching the current day of the week
+        val current = times.filter {it.day == weekday}
+        current.forEach { time ->
+            CreateButtons(
+                time = time)}
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            val openDialog = remember { mutableStateOf(false)  }
+            if (openDialog.value) {
+                DialogAdd( openDialog, weekday)
+            }
+            Box(modifier = Modifier
+                .width(50.dp)
+                .clickable { openDialog.value = true }
+            ) {
+                Icon(
+                    Icons.Filled.AddCircle,
+                    contentDescription = "Add"
                 )
-                //This repeats for each data value matching the current day of the week
-                val current = times.filter {it.day == weekday}
-                current.forEach { time ->
-                    CreateButtons(
-                        time = time)}
+            }
+        }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    val openDialog = remember { mutableStateOf(false)  }
-                    if (openDialog.value) {
-                        DialogAdd( openDialog, weekday)
-                    }
-                    Box(modifier = Modifier
-                        .width(50.dp)
-                        .clickable { openDialog.value = true }
-                    ) {
-                        Icon(
-                            Icons.Filled.AddCircle,
-                            contentDescription = "Add"
-                        )
-                    }
-                }
-
-                }
+        }
         }
 
 //Make the module code a drop down and link the Module Title
@@ -126,7 +128,7 @@ fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
                     .verticalScroll(rememberScrollState())
             ){
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    SelectOrCreate(::updateSelectedCreateModuleDialog,
+                    SelectOrCreateModule(::updateSelectedCreateModuleDialog,
                         ::updateSelectedModuleCode)
                     if (openCreateModuleDialog.value){
                         ModuleCreateDialog(
@@ -135,7 +137,7 @@ fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
                     }
                     Spacer(modifier = Modifier.size(10.dp))
 
-                    Text("Start Time:")
+                    Text("Start Time:", style = MaterialTheme.typography.headlineSmall)
                     TextField(
                         value = startTime,
                         onValueChange = { startTime = it },
@@ -143,7 +145,7 @@ fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
 
                     Spacer(modifier = Modifier.size(10.dp))
 
-                    Text("End Time:")
+                    Text("End Time:",style = MaterialTheme.typography.headlineSmall)
                     TextField(
                         value = endTime,
                         onValueChange = { endTime = it },
@@ -249,7 +251,7 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
                         )
                     }
                     if (openDialogModule.value) {
-                        ModuleCreateDialog(openDialog = openDialogModule, openDialog2 = openDialog)
+                        ModuleCreateDialog(openDialog = openDialogModule)
                     }
                 }
                 val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
@@ -357,6 +359,18 @@ fun DialogEdit( openDialog: MutableState<Boolean>, time: TimetableEntity){
             }
         }
     )
+}
+
+
+fun findModule(modules: List<ModuleEntity>, currentModuleCode: String): ModuleEntity {
+    var requiredModule = modules[0]
+    for (module in modules) {
+        if (module.moduleCode == currentModuleCode) {
+            requiredModule = module
+        }
+    }
+
+    return requiredModule
 }
 
 
