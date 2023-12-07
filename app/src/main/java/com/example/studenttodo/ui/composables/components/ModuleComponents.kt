@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -44,10 +46,14 @@ import com.example.studenttodo.viewmodels.CreateViewModel
 fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModuleCode: (mc: String) -> Unit, rowModifier: Modifier = Modifier, moduleCode: String = "") {
     Column {
 
-        Text(
-            "Module Code:", modifier = Modifier,
-            style = MaterialTheme.typography.headlineSmall
-        )
+        Row {
+            Text(
+                "Module Code:", modifier = Modifier,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(text = " *", color = MaterialTheme.colorScheme.error)
+        }
+
 
         Row(
             modifier = rowModifier,
@@ -93,15 +99,15 @@ fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModu
                         }
                     }
                 }
+            } else{
+                Text(text = "No modules found",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.error)
             }
-            Box(
-                modifier = Modifier
-                    .weight(0.2f)
-                    .fillMaxHeight()
-                    .clickable { openDialog(true) }
-            ) {
+            IconButton(onClick = { openDialog(true) },
+                modifier = Modifier.weight(0.2f).fillMaxHeight()) {
                 Icon(
-                    Icons.Filled.Add,
+                    Icons.Filled.AddCircle,
                     contentDescription = "Add Module",
                     Modifier.fillMaxSize()
                 )

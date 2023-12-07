@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.net.Uri
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,8 +14,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.studenttodo.services.GeoLocationService
 import com.example.studenttodo.ui.composables.NavigationScaffold
 import com.example.studenttodo.ui.theme.StudentToDoTheme
+import com.example.studenttodo.viewmodels.LocationViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -53,7 +53,8 @@ class MainActivity : ComponentActivity() {
                 GeoLocationService.updateLatestLocation(location)
             }
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                1000, 0.0f, GeoLocationService)
+                1000, 0.0f, GeoLocationService
+            )
         }
     }
     override fun onPause(){

@@ -13,6 +13,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -26,12 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import java.net.URI
 
 @Composable
 fun SelectImage(selectedUri: String, updateSelectedUri: (uri: String) -> Unit, edit: Boolean = false){
     var showImage by remember { mutableStateOf(selectedUri != "") }
-    val imageText = if (showImage) "Edit Image" else "Add Image"
+    val imageText = if (edit && selectedUri != "") "Edit Image" else "Add Image"
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -64,7 +69,7 @@ fun SelectImage(selectedUri: String, updateSelectedUri: (uri: String) -> Unit, e
 
 
 
-        Column {
+        Row (modifier = Modifier.widthIn(max = 260.dp).heightIn(max = 400.dp)){
             pickedImageBitmap?.let { imageBitmap ->
                 Image(imageBitmap, null)
             }
