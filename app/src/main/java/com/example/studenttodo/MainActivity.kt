@@ -28,6 +28,8 @@ class MainActivity : ComponentActivity() {
             val toDoDAO = ToDoDatabase.getDB(LocalContext.current).todoDao()
             val serviceIntent = Intent(this, NotifsBackground::class.java)
             startService(serviceIntent)
+
+
             StudentToDoTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(

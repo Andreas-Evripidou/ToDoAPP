@@ -208,7 +208,7 @@ fun CreateScreen() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        time = time.plus(enteredHours).plus(":").plus(enteredMinutes)
+        time = enteredHours.plus(":").plus(enteredMinutes)
 
         Text("Take Picture (Not taught yet)")
 
