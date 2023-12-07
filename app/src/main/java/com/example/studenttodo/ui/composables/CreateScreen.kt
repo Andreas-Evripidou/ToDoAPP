@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.ui.composables.components.ModuleCreateDialog
 import com.example.studenttodo.ui.composables.components.SelectDate
+import com.example.studenttodo.ui.composables.components.SelectImage
 import com.example.studenttodo.ui.composables.components.SelectLocation
 import com.example.studenttodo.ui.composables.components.SelectOrCreateModule
 import com.example.studenttodo.ui.composables.components.SelectTime
@@ -176,6 +177,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
 
 
         var showDateTimeFields by remember { mutableStateOf(false) }
+        val text = if (edit) "Edit Reminder" else "Add Reminder"
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -184,7 +186,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
             Checkbox(
                 checked = showDateTimeFields,
                 onCheckedChange = { showDateTimeFields = it })
-            Text("Add reminder date & time")
+            Text(text)
         }
 
         if (showDateTimeFields) {
@@ -220,51 +222,13 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
             updateSelectedLoc = ::updatedSelectedLocation)
 
 
-        var showImage by remember { mutableStateOf(false) }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { showImage = !showImage }
-        ) {
-            Checkbox(
-                checked = showImage,
-                onCheckedChange = { showImage = it })
-            Text("Add a image")
-        }
         var selectedUri by remember { mutableStateOf(toDo.picture) }
-        var pickedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-
-        if (showImage) {
-            val context = LocalContext.current
-            val imageFromGalleryLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.PickVisualMedia()
-            ) { uri: Uri? ->
-                if (uri == null) {
-                    pickedImageBitmap = null
-                } else {
-                    val contentResolver: ContentResolver = context.contentResolver
-                    pickedImageBitmap = ImageDecoder.decodeBitmap(
-                        ImageDecoder.createSource(contentResolver, uri)
-                    ).asImageBitmap()
-                    selectedUri = uri.toString()
-                }
-            }
-
-
-            Column {
-                pickedImageBitmap?.let { imageBitmap ->
-                    Image(imageBitmap, null)
-                }
-            }
-            OutlinedButton(onClick = {
-                imageFromGalleryLauncher.launch(
-                    PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            }
-            ) {
-                Text("Open Gallery")
-            }
+        fun updateSelectedUri (uri: String){
+            selectedUri = uri
         }
+
+        SelectImage(selectedUri, ::updateSelectedUri, edit = edit)
+
         Spacer(modifier = Modifier.height(16.dp))
 
         var showError by remember { mutableStateOf(false) }

@@ -30,6 +30,12 @@ fun SelectTime(time: String, updatedSelectedTime: (h: String, m: String) -> Unit
     var enteredHours by remember { mutableStateOf("") }
     var enteredMinutes by remember { mutableStateOf("") }
 
+    val timeParts = time.split(":")
+    if (timeParts.size == 3) {
+        enteredHours = timeParts[0]
+        enteredMinutes = timeParts[1]
+    }
+
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),

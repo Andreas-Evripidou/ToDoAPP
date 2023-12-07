@@ -26,6 +26,13 @@ fun SelectDate(date: String, updateSelectedDate: (d: String, m: String, y: Strin
     var month by remember { mutableStateOf("") }
     var year by remember { mutableStateOf("") }
 
+    val dateParts = date.split("-")
+    if (dateParts.size == 3) {
+        year = dateParts[0]
+        month = dateParts[1]
+        day = dateParts[2]
+    }
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
