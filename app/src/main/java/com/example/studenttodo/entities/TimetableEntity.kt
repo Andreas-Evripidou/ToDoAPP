@@ -1,12 +1,9 @@
 package com.example.studenttodo.entities
 
-import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import java.time.LocalTime
-import kotlin.reflect.KClass
 
 @Entity(tableName = TimetableEntity.TABLE_NAME, foreignKeys = [ForeignKey(entity = ModuleEntity::class,
     parentColumns = ["moduleCode"],
@@ -19,6 +16,10 @@ data class TimetableEntity(
     val startTime: LocalTime,
     val endTime: LocalTime,
     val moduleCode: String,
+    val itemType: String,
+    val lat: String,
+    val long: String,
+    val radius: String,
     val status: Int
 ) {
     companion object {

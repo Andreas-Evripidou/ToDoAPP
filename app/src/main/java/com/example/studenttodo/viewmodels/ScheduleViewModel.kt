@@ -10,6 +10,7 @@ import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.TimetableEntity
 import com.example.studenttodo.entities.ToDoEntity
 import kotlinx.coroutines.launch
+import kotlin.reflect.typeOf
 
 internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
     val context = getApplication<Application>().applicationContext
@@ -40,12 +41,16 @@ internal class ScheduleViewModel (app: Application): AndroidViewModel(app){
     }
     fun deleteTimetable(timetable: TimetableEntity) = viewModelScope.launch {
         val timetable = TimetableEntity(
-        id = timetable.id,
-        day = timetable.day,
-        startTime = timetable.startTime,
-        endTime = timetable.endTime,
-        moduleCode = timetable.moduleCode,
-        status = 1
+            id = timetable.id,
+            day = timetable.day,
+            startTime = timetable.startTime,
+            endTime = timetable.endTime,
+            moduleCode = timetable.moduleCode,
+            lat = timetable.lat,
+            long = timetable.long,
+            radius = timetable.radius,
+            itemType = timetable.itemType,
+            status = 1
         )
         dao.update(timetable)
 

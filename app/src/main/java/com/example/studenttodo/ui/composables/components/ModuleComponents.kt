@@ -134,16 +134,8 @@ fun makeArrayOfModuleCodes(modules: List<ModuleEntity>) : ArrayList<String> {
 fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
     val viewModel = viewModel<CreateViewModel>()
     var code by remember { mutableStateOf("") }
-    var latitude by remember { mutableStateOf("") }
-    var longitude by remember { mutableStateOf("") }
-    var locationradius by remember { mutableStateOf("") }
     var moduleTitle by remember { mutableStateOf("") }
 
-    fun updatedSelectedLocation(lon: String, lat: String, radius: String){
-        longitude = lon
-        latitude = lat
-        locationradius = radius
-    }
 
     AlertDialog(
         title = { Text(text = "Create Module")},
@@ -166,12 +158,6 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
                     label = { Text(text = "Module Code") })
                 Spacer(modifier = Modifier.size(10.dp))
 
-                SelectLocation(lon = longitude,
-                    lat = latitude,
-                    radius = locationradius,
-                    optional = false,
-                    updateSelectedLoc = ::updatedSelectedLocation)
-
             }
         },
         onDismissRequest = { openDialog.value = false },
@@ -185,8 +171,6 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
             Button(onClick = {
                 val module = ModuleEntity(
                     moduleCode = code,
-                    lat = latitude,
-                    long = longitude,
                     moduleTitle = moduleTitle
                 )
                 viewModel.createModule(module = module)

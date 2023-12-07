@@ -82,7 +82,7 @@ class NotifsBackground : Service() {
                 // toast todo change text to display actual notification
                 handler.post{
                     val text = "Reminder: ${title}"
-                    val duration = Toast.LENGTH_LONG
+                    val duration = Toast.LENGTH_SHORT
                     val toast = Toast.makeText(applicationContext, text, duration) // in Activity
                     toast.show()
 

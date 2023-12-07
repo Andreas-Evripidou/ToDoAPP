@@ -118,7 +118,7 @@ fun SelectLocation(
             value = locationradius,
             onValueChange = { locationradius = it
                 updateSelectedLoc(longitude, latitude, locationradius)},
-            label = { Text("radius") })
+            label = { Text("radius in meters") })
     }
 
 }
