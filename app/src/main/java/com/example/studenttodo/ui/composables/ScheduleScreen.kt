@@ -1,5 +1,6 @@
 package com.example.studenttodo.ui.composables
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,14 +39,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ModuleEntity
 import com.example.studenttodo.entities.TimetableEntity
-import com.example.studenttodo.viewmodels.CreateViewModel
+import com.example.studenttodo.ui.composables.components.ModuleCreateDialog
+import com.example.studenttodo.ui.composables.components.SelectOrCreateModule
 import com.example.studenttodo.viewmodels.ScheduleViewModel
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -53,226 +57,103 @@ import java.time.format.DateTimeParseException
 
 
 @Composable
-fun ScheduleScreen (name: String, modifier: Modifier = Modifier) {
+fun ScheduleScreen (modifier: Modifier = Modifier) {
     val times by viewModel<ScheduleViewModel>().timetable.collectAsState(initial = emptyList())
-    val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+    val weekdays: List<String> = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 
-    //This is the day of the week, repeat for each work day of the week
-    weekdays.forEach { weekday ->
-        Text(
-            text = weekday,
-            modifier = modifier,
-            style = MaterialTheme.typography.headlineSmall
-        )
-        //This repeats for each data value matching the current day of the week
-        val current = times.filter {it.day == weekday}
-        current.forEach { time ->
-            if (time.status ==0){ CreateButtons(time = time)}}
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
-                horizontalArrangement = Arrangement.Center
-        ) {
-            val openDialog = remember { mutableStateOf(false)  }
-            if (openDialog.value) {
-                DialogAdd( openDialog, weekday)
-            }
-            Box(modifier = Modifier
-                .width(50.dp)
-                .clickable { openDialog.value = true }
-            ) {
-                Icon(
-                    Icons.Filled.AddCircle,
-                    contentDescription = "Add"
+
+        //This is the day of the week, repeat for each work day of the week
+            weekdays.forEach { weekday ->
+                Text(
+                    text = weekday,
+                    modifier = modifier,
+                    style = MaterialTheme.typography.headlineSmall
                 )
-            }
+                //This repeats for each data value matching the current day of the week
+                val current = times.filter {it.day == weekday}
+                current.forEach { time ->
+                    CreateButtons(
+                        time = time)}
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    val openDialog = remember { mutableStateOf(false)  }
+                    if (openDialog.value) {
+                        DialogAdd( openDialog, weekday)
+                    }
+                    Box(modifier = Modifier
+                        .width(50.dp)
+                        .clickable { openDialog.value = true }
+                    ) {
+                        Icon(
+                            Icons.Filled.AddCircle,
+                            contentDescription = "Add"
+                        )
+                    }
+                }
+
+                }
         }
-    }
-}
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun ModuleCreateDialog(openDialog: MutableState<Boolean>, openDialog2: MutableState<Boolean>) {
-    val viewModel = viewModel<CreateViewModel>()
-    var code by remember { mutableStateOf("") }
-    var lat by remember { mutableStateOf("") }
-    var long by remember { mutableStateOf("") }
-    var moduleTitle by remember { mutableStateOf("") }
-    AlertDialog(
-        title = { Text(text = "Create Module",modifier = Modifier,
-            style = MaterialTheme.typography.headlineMedium )},
-        text = {
-            Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = "Module Title",modifier = Modifier,
-                    style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = moduleTitle,
-                    onValueChange = { moduleTitle = it },
-                    label = { Text(text = "Module Title") })
-                Spacer(modifier = Modifier.size(10.dp))
 
-                Text(text = "Module Code", modifier = Modifier,
-                    style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = code,
-                    onValueChange = { code = it },
-                    label = { Text(text = "Module Code") })
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text(text = "Latitude", modifier = Modifier,
-                    style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = lat,
-                    onValueChange = { lat = it },
-                    label = { Text(text = "Latitude") })
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text(text = "Longitude", modifier = Modifier,
-                    style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = long,
-                    onValueChange = { long = it },
-                    label = { Text(text = "Longitude") })
-                Spacer(modifier = Modifier.size(10.dp))
-            }
-        },
-        onDismissRequest = { openDialog.value = false
-            openDialog2.value = true },
-        dismissButton = {
-            Button(onClick = { openDialog.value = false
-                openDialog2.value = true})
-            {
-                Text(text = "Dismiss")
-            }
-        },
-        confirmButton = {
-            Button(onClick = {
-                val module = ModuleEntity(
-                    moduleCode = code,
-                    lat = lat,
-                    long = long,
-                    moduleTitle = moduleTitle
-                )
-                viewModel.createModule(module = module)
-                openDialog.value = false
-                openDialog2.value = true
-            }) {
-                Text(text = "Create Module")
-            }
-        })
-}
-
-fun findModule(modules: List<ModuleEntity>, currentModuleCode: String): ModuleEntity {
-    var requiredModule = modules[0]
-    for (module in modules) {
-        if (module.moduleCode == currentModuleCode) {
-            requiredModule = module
-        }
-    }
-
-    return requiredModule
-}
-
+//Make the module code a drop down and link the Module Title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialogAdd( openDialog: MutableState<Boolean>, weekday: String){
+fun DialogAdd(openDialog: MutableState<Boolean>, weekday: String){
     val viewModel = viewModel<ScheduleViewModel>()
     var moduleCode by remember { mutableStateOf("") }
     var startTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     var showDateError by remember { mutableStateOf(false) }
-    val openDialogModule = remember { mutableStateOf(false)  }
+    val openCreateModuleDialog = remember { mutableStateOf(false)  }
+
+    fun updateSelectedCreateModuleDialog (open: Boolean){
+        openCreateModuleDialog.value = open
+    }
+    fun updateSelectedModuleCode(mc: String) {
+        moduleCode = mc
+    }
 
     AlertDialog(
-        title = {Text(text = "Add a Day to Your Schedule", modifier = Modifier,
-            style = MaterialTheme.typography.headlineMedium)},
-        text = {Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-        ){
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Module Code:", modifier = Modifier,
-                        style = MaterialTheme.typography.headlineSmall)
-                    Box(
-                        modifier = Modifier
-                            .clickable { openDialogModule.value = true }
-                    ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = "Add Module",
+        title = {Text(text = "Add a Day to Your Schedule")},
+        text = {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+            ){
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    SelectOrCreate(::updateSelectedCreateModuleDialog,
+                        ::updateSelectedModuleCode)
+                    if (openCreateModuleDialog.value){
+                        ModuleCreateDialog(
+                            openDialog = openCreateModuleDialog,
                         )
                     }
-                    if (openDialogModule.value) {
-                        ModuleCreateDialog(openDialog = openDialogModule, openDialog2 = openDialog)
-                    }
-                }
-                val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
-                if (modules.isNotEmpty()) {
-                    val moduleTitles = makeArrayOfModuleCodes(modules)
+                    Spacer(modifier = Modifier.size(10.dp))
 
-                    var expanded by remember { mutableStateOf(false) }
-                    var selectedText by remember { mutableStateOf(moduleTitles[0]) }
+                    Text("Start Time:")
+                    TextField(
+                        value = startTime,
+                        onValueChange = { startTime = it },
+                        label = { Text("Start Time in HH:mm format") })
 
+                    Spacer(modifier = Modifier.size(10.dp))
 
-                    Row {
-                        ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = { expanded = !expanded }) {
-                            TextField(
-                                value = selectedText,
-                                onValueChange = {},
-                                readOnly = true,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                modifier = Modifier.menuAnchor()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }) {
-                                moduleTitles.forEach { item ->
-                                    DropdownMenuItem(
-                                        text = { Text(text = item) },
-                                        onClick = {
-                                            selectedText = item
-                                            expanded = false
-                                            //Toast.makeText(context, item, Toast.LENGTH_SHORT)
-                                        })
+                    Text("End Time:")
+                    TextField(
+                        value = endTime,
+                        onValueChange = { endTime = it },
+                        label = { Text("End Time in HH:mm format") })
 
-                                }
-                            }
-                        }
-                    }
-                    moduleCode = selectedText
+                    Spacer(modifier = Modifier.size(10.dp))
                 }
 
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text("Start Time:", modifier = Modifier,
-                    style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = startTime,
-                    onValueChange = { startTime = it },
-                    label = { Text("Start Time in HH:mm format") })
-
-                Spacer(modifier = Modifier.size(10.dp))
-
-                Text("End Time:", modifier = Modifier,
-                    style = MaterialTheme.typography.headlineSmall)
-                TextField(
-                    value = endTime,
-                    onValueChange = { endTime = it },
-                    label = { Text("End Time in HH:mm format") })
-
-                Spacer(modifier = Modifier.size(10.dp))
             }
-
-        }},
+        },
         onDismissRequest = {openDialog.value = false},
         dismissButton = {
             Button(onClick = { openDialog.value = false})
@@ -609,7 +490,6 @@ fun DialogDelete( openDialog: MutableState<Boolean>, time: TimetableEntity){
         )
     }
 }
-
 
 @Composable
 fun CreateButtons(
