@@ -15,25 +15,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.studenttodo.R
 import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.viewmodels.HomeViewModel
 
@@ -54,7 +58,7 @@ fun HomeScreen() {
     )
     {
         todos.forEach { todo ->
-            dispTasks(
+            displayTodo(
                 todo = todo,
                 borderColor = homeViewModel.getBorderColor(todo),
                 onArchive = {homeViewModel.archiveToDo(it)},
@@ -65,12 +69,22 @@ fun HomeScreen() {
     }
 }
 @Composable
-fun dispTasks (
+fun displayTodo (
     todo: ToDoEntity,
     onArchive: (ToDoEntity) -> Unit,
     onViewMore: (ToDoEntity) -> Unit,
     borderColor: Int,
     ){
+        var openViewEdit by remember { mutableStateOf(false) }
+
+        fun onDismiss (){
+            openViewEdit = false
+        }
+
+        if (openViewEdit){
+            viewEditTodo(todo = todo, ::onDismiss)
+        }
+
         Card (modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .padding(bottom = 10.dp),
@@ -86,7 +100,7 @@ fun dispTasks (
                 Box(modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .clickable { onViewMore(todo) }
+                    .clickable { openViewEdit = true }
                 ) {
                     Column (modifier = Modifier.padding(start = 6.dp) ){
                         Text(text = todo.title, style = MaterialTheme.typography.headlineSmall)
@@ -108,6 +122,18 @@ fun dispTasks (
         }
 }
 
-
-// NOTIFICATIONS -----------------------------------------------------------------------------------
-//Notification builder
+@Composable
+fun viewEditTodo(todo: ToDoEntity, onDismiss: () -> Unit){
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Card(
+            modifier = Modifier.background(MaterialTheme.colorScheme.background,
+                RoundedCornerShape(8.dp))){
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+            ){
+                CreateScreen(todo, onDismiss = onDismiss, edit = true)
+            }
+        }
+    }
+}

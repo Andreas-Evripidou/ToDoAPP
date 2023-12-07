@@ -1,5 +1,11 @@
 package com.example.studenttodo
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.net.Uri
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,29 +13,24 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.studenttodo.data.ToDoDatabase
 import com.example.studenttodo.ui.composables.NavigationScaffold
 import com.example.studenttodo.ui.theme.StudentToDoTheme
-import com.example.studenttodo.viewmodels.ArchiveViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!hasPermission()){
+            requestFineLocationPermission()
+        }
         setContent {
-            val archiveViewModel = viewModel<ArchiveViewModel>()
-            val toDoDAO = ToDoDatabase.getDB(LocalContext.current).todoDao()
+            val locationViewModel = viewModel<LocationViewModel>()
+            GeoLocationService.locationViewModel = locationViewModel
             val serviceIntent = Intent(this, NotifsBackground::class.java)
             startService(serviceIntent)
-
-
             StudentToDoTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -42,12 +43,38 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-}
-
-@Preview(showBackground = true)
-@Composable
-fun NavigationPreview() {
-    StudentToDoTheme {
-        NavigationScaffold()
+    override fun onResume() {
+        super.onResume()
+        val locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        @SuppressLint("MissingPermission")
+        if (hasPermission()){
+            val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            if ( location!= null){
+                GeoLocationService.updateLatestLocation(location)
+            }
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                1000, 0.0f, GeoLocationService)
+        }
     }
+    override fun onPause(){
+        super.onPause()
+        val locationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager.removeUpdates(GeoLocationService)
+    }
+
+    private val GPS_LOCATION_PERMISSION_REQUEST = 1
+    private fun requestFineLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+            arrayOf( android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION ),
+            GPS_LOCATION_PERMISSION_REQUEST
+        )
+    }
+
+    private fun hasPermission(): Boolean {
+        return PackageManager.PERMISSION_GRANTED ==
+                ActivityCompat.checkSelfPermission(
+                    applicationContext, android.Manifest.permission.ACCESS_FINE_LOCATION )
+    }
+
 }
