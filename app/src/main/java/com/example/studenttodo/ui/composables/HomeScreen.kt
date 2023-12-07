@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationCompat
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
@@ -125,7 +127,7 @@ fun displayTodo (
 fun viewEditTodo(todo: ToDoEntity, onDismiss: () -> Unit){
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background,
+            modifier = Modifier.heightIn(max = 800.dp).background(MaterialTheme.colorScheme.background,
                 RoundedCornerShape(8.dp))){
             Column(
                 modifier = Modifier

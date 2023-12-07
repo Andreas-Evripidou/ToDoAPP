@@ -105,7 +105,6 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
     if (openDialog.value) {
         ModuleCreateDialog(openDialog = openDialog)
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -118,7 +117,8 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
         var taskDescription by remember { mutableStateOf(toDo.description) }
 
         Row {
-            Text("Task Name", style = MaterialTheme.typography.headlineSmall)
+            Text("Task Name:",
+                style = MaterialTheme.typography.headlineSmall)
             Text(" *", color = Color.Red)
         }
 
@@ -147,7 +147,8 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
         }
 
         Row {
-            Text("Task Description", style = MaterialTheme.typography.headlineSmall)
+            Text("Task Description:",
+                style = MaterialTheme.typography.headlineSmall)
             Text(" *", color = Color.Red)
         }
         Row {
@@ -181,16 +182,17 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
         val choices = listOf("Low", "Medium", "High")
         val (priority, onSelected) = remember { mutableStateOf(choices[toDo.priority-1]) }
         Row {
-            Text("Task Priority", style = MaterialTheme.typography.headlineSmall)
+            Text("Task Priority:",
+                style = MaterialTheme.typography.headlineSmall)
             Text(" *", color = Color.Red)
         }
         var expanded by remember { mutableStateOf(false) }
         Row (
-            modifier = Modifier.width(150.dp),
             verticalAlignment = Alignment.CenterVertically)
         {
+            Spacer(modifier = Modifier.weight(0.5f))
             ExposedDropdownMenuBox(
-                modifier = Modifier.weight(0.8f),
+                modifier = Modifier.weight(2f),
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }) {
                 TextField(
@@ -213,6 +215,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
                     }
                 }
             }
+            Spacer(modifier = Modifier.weight(0.5f))
         }
 
         Spacer(modifier = Modifier.height(16.dp))

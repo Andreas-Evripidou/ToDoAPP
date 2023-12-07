@@ -25,6 +25,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -63,13 +64,13 @@ fun ScheduleScreen (modifier: Modifier = Modifier) {
     val times by viewModel<ScheduleViewModel>().timetable.collectAsState(initial = emptyList())
     val weekdays: List<String> = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 
-
+    Column (horizontalAlignment = Alignment.CenterHorizontally) {
     //This is the day of the week, repeat for each work day of the week
     weekdays.forEach { weekday ->
         Text(
             text = weekday,
             modifier = modifier,
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineMedium
         )
         //This repeats for each data value matching the current day of the week
         val current = times.filter {it.day == weekday}
@@ -80,7 +81,7 @@ fun ScheduleScreen (modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(5.dp),
+                .padding(bottom = 5.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             val openDialog = remember { mutableStateOf(false)  }
@@ -88,7 +89,6 @@ fun ScheduleScreen (modifier: Modifier = Modifier) {
                 DialogAdd( openDialog, weekday)
             }
             Box(modifier = Modifier
-                .width(50.dp)
                 .clickable { openDialog.value = true }
             ) {
                 Icon(
@@ -97,9 +97,17 @@ fun ScheduleScreen (modifier: Modifier = Modifier) {
                 )
             }
         }
+        if (weekday != "Friday"){
+            Divider(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+            )
+        }
+
 
         }
-        }
+    }
+}
 
 //Make the module code a drop down and link the Module Title
 @OptIn(ExperimentalMaterial3Api::class)

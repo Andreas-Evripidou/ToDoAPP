@@ -5,18 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.services.GeoLocationService
 import com.example.studenttodo.ui.composables.NavigationScaffold
@@ -33,6 +29,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val locationViewModel = viewModel<LocationViewModel>()
             GeoLocationService.locationViewModel = locationViewModel
+            val serviceIntent = Intent(this, NotifsBackground::class.java)
+            startService(serviceIntent)
             StudentToDoTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -55,7 +53,8 @@ class MainActivity : ComponentActivity() {
                 GeoLocationService.updateLatestLocation(location)
             }
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                1000, 0.0f, GeoLocationService)
+                1000, 0.0f, GeoLocationService
+            )
         }
     }
     override fun onPause(){
