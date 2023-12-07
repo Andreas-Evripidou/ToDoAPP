@@ -91,7 +91,7 @@ fun ScreenComponents(
 ){
     when (selectedScreenID) {
         ScreenID.HOME -> HomeScreen()
-        ScreenID.CREATE -> CreateScreen()
+        ScreenID.CREATE -> CreateScreen(onDismiss = {updateSelected(ScreenID.HOME, "Home")})
         ScreenID.ARCHIVE -> ArchiveScreen()
         ScreenID.SCHEDULE -> ScheduleScreen()
     }

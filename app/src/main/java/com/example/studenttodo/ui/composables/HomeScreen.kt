@@ -127,11 +127,13 @@ fun displayTodo (
 fun viewEditTodo(todo: ToDoEntity, onDismiss: () -> Unit){
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
-            modifier = Modifier.heightIn(max = 800.dp).background(MaterialTheme.colorScheme.background,
-                RoundedCornerShape(8.dp))){
+            modifier = Modifier.heightIn(max = 800.dp)
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(8.dp))
+                ){
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
+                    .padding(vertical = 15.dp)
             ){
                 CreateScreen(todo, onDismiss = onDismiss, edit = true)
             }

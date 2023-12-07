@@ -85,15 +85,6 @@ fun displayDateTimeError(){
     Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
 }
 
-@Composable
-fun displaySuccess(){
-    Text(
-        text = "ToDo Successfully Added",
-        color = Color.Green,
-
-    )
-}
-
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -222,7 +213,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
 
 
         var date by remember { mutableStateOf(toDo.reminderDate.toString()) }
-        var time by remember { mutableStateOf(toDo.reminderTime.toString()) }
+        var time by remember { mutableStateOf(toDo.reminderTime.toString().substring(0, 5)) }
 
 
         var showDateTimeFields by remember { mutableStateOf(false) }
@@ -240,7 +231,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
 
         if (showDateTimeFields) {
             fun updateSelectedDate(d: String, m: String, y: String){
-                date = d.plus("/").plus(m).plus("/").plus(y)
+                date = y.plus("-").plus(m).plus("-").plus(d)
             }
             SelectDate(date = date, updateSelectedDate = ::updateSelectedDate)
 
@@ -298,15 +289,18 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
 
                 if (taskName.isNotEmpty() && taskDescription.isNotEmpty()) {
 
-                    val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                    val timeFormatter = DateTimeFormatter.ofPattern("hh:mm")
+                    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
                     try {
                         lDate = LocalDate.parse(date, dateFormatter)
                         lTime = LocalTime.parse(time, timeFormatter)
 
                     } catch (e: DateTimeParseException) {
                         // Error handling: Print an error message or take appropriate action
-                        Log.i("Wrong date: $date or time: $time", "datetimerror")
+                        showDateError = true
+                        Log.i("Wrong time: $time", "datetimerror")
+                        Log.i("Wrong date: $date", "datetimerror")
+                        Log.i("Exception: $e", "datetimerror")
                     }
 
 
@@ -316,7 +310,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
                         reminderDate = lDate,
                         reminderTime = lTime,
                         priority = choices.indexOf(priority) + 1,
-                        status = 0,
+                        status = toDo.status,
                         description = taskDescription,
                         picture = selectedUri,
                         latitude = latitude,
@@ -326,7 +320,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
                         createdLongitude = "temp",
                         moduleCode = moduleCode
                     )
-                    viewModel.createOrUpdateToDo(todo)
+                    viewModel.createOrUpdateToDo(todo, edit)
                     showSuccess = true
                 } else {
                     showError = true
@@ -343,7 +337,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
             displayDateTimeError()
         }
         if (showSuccess) {
-            displaySuccess()
+            onDismiss()
         }
     }
 
