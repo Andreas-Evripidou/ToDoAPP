@@ -12,17 +12,13 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class CreateViewModel (app:Application): AndroidViewModel(app){
-    val context = getApplication<Application>().applicationContext
+    private val context = getApplication<Application>().applicationContext
     private
     val dao = ToDoDatabase.getDB(context).todoDao()
-    val todos = dao.getActiveTodos()
 
-    val moduledao = ToDoDatabase.getDB(context).moduleDAO()
-    val modules = moduledao.getAll()
+    private val moduleDao = ToDoDatabase.getDB(context).moduleDAO()
+    val modules = moduleDao.getAll()
 
-    fun createToDo (toDo: ToDoEntity) = viewModelScope.launch {
-        dao.insert(toDo)
-    }
     fun createOrUpdateToDo (toDo: ToDoEntity, edit: Boolean) = viewModelScope.launch {
         dao.updateOrInsert(toDo)
 
@@ -34,7 +30,6 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
     }
     fun emptyTodo(): ToDoEntity {
         return ToDoEntity(
-            id = 0, // Assuming id is an integer, you can set it accordingly
             title = "",
             reminderTime =  LocalTime.now(),
             reminderDate = LocalDate.now(),
@@ -53,6 +48,6 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
         )
     }
     fun createModule(module: ModuleEntity) = viewModelScope.launch {
-        moduledao.updateOrInsert(module)
+        moduleDao.updateOrInsert(module)
     }
 }

@@ -1,8 +1,6 @@
 package com.example.studenttodo.ui.composables.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -117,7 +114,7 @@ fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModu
 }
 
 fun makeArrayOfModuleCodes(modules: List<ModuleEntity>) : ArrayList<String> {
-    var moduleCodes = ArrayList<String>()
+    val moduleCodes = ArrayList<String>()
     for (module in modules) {
         moduleCodes.add(module.moduleCode)
     }
@@ -154,7 +151,7 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
                     style = MaterialTheme.typography.headlineSmall)
                 TextField(
                     value = code,
-                    onValueChange = { code = it },
+                    onValueChange = { code = it.uppercase() },
                     label = { Text(text = "Module Code") })
                 Spacer(modifier = Modifier.size(10.dp))
 

@@ -1,17 +1,7 @@
 package com.example.studenttodo.ui.composables
 
-import android.content.ContentResolver
-import android.graphics.ImageDecoder
-import android.net.Uri
 import android.os.Build
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,20 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -45,12 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
+import com.example.studenttodo.ui.composables.components.CustomSubMenu
 import com.example.studenttodo.ui.composables.components.ModuleCreateDialog
 import com.example.studenttodo.ui.composables.components.SelectDate
 import com.example.studenttodo.ui.composables.components.SelectImage
@@ -77,11 +59,11 @@ fun SubmitButton(onClick: ()-> Unit){
 
 }
 @Composable
-fun displayError(){
+fun DisplayError(){
     Text("Please fill in all required fields (with *)", color = MaterialTheme.colorScheme.error)
 }
 @Composable
-fun displayDateTimeError(){
+fun DisplayDateTimeError(){
     Text("Please enter a valid date and time in the correct format", color = MaterialTheme.colorScheme.error)
 }
 
@@ -91,7 +73,7 @@ fun displayDateTimeError(){
 @Composable
 fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), edit: Boolean = false, onDismiss : ()->Unit = {}) {
     val viewModel = viewModel<CreateViewModel>()
-    var openDialog = remember { mutableStateOf(false) }
+    val openDialog = remember { mutableStateOf(false) }
 
     if (openDialog.value) {
         ModuleCreateDialog(openDialog = openDialog)
@@ -216,20 +198,12 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
         var time by remember { mutableStateOf(toDo.reminderTime.toString().substring(0, 5)) }
 
 
-        var showDateTimeFields by remember { mutableStateOf(false) }
+        val showDateTimeFields = remember { mutableStateOf(false) }
         val text = if (edit) "Edit Reminder" else "Add Reminder"
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { showDateTimeFields = !showDateTimeFields }
-        ) {
-            Checkbox(
-                checked = showDateTimeFields,
-                onCheckedChange = { showDateTimeFields = it })
-            Text(text)
-        }
+        CustomSubMenu(text, showDateTimeFields)
 
-        if (showDateTimeFields) {
+        if (showDateTimeFields.value) {
             fun updateSelectedDate(d: String, m: String, y: String){
                 date = y.plus("-").plus(m).plus("-").plus(d)
             }
@@ -296,11 +270,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
                         lTime = LocalTime.parse(time, timeFormatter)
 
                     } catch (e: DateTimeParseException) {
-                        // Error handling: Print an error message or take appropriate action
                         showDateError = true
-                        Log.i("Wrong time: $time", "datetimerror")
-                        Log.i("Wrong date: $date", "datetimerror")
-                        Log.i("Exception: $e", "datetimerror")
                     }
 
 
@@ -331,10 +301,10 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
         }
 
         if (showError) {
-            displayError()
+            DisplayError()
         }
         if (showDateError) {
-            displayDateTimeError()
+            DisplayDateTimeError()
         }
         if (showSuccess) {
             onDismiss()

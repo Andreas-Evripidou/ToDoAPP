@@ -1,10 +1,7 @@
 package com.example.studenttodo.ui.composables.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,7 +55,6 @@ fun SelectTime(time: String, updatedSelectedTime: (h: String, m: String) -> Unit
                 keyboardType = KeyboardType.Number
             )
         )
-
         Text(":")
 
 
@@ -79,5 +75,4 @@ fun SelectTime(time: String, updatedSelectedTime: (h: String, m: String) -> Unit
         )
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
 }
