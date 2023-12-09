@@ -10,6 +10,7 @@ object GeoLocationService: LocationListener {
 
     override fun onLocationChanged(newLocation: Location) {
         locationViewModel?.updateLocation( newLocation )
+        locationViewModel?.updateLocation( newLocation )
         Log.i("geolocation", "Location updated")
     }
 

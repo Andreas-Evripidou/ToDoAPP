@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
-import com.example.studenttodo.ui.composables.components.AutomaticModuleSelection
 import com.example.studenttodo.ui.composables.components.CustomSubMenu
 import com.example.studenttodo.ui.composables.components.SelectDate
 import com.example.studenttodo.ui.composables.components.SelectImage
@@ -79,12 +78,14 @@ fun CreateScreen(
 {
     val viewModel = viewModel<CreateViewModel>()
     val locationViewModel = viewModel<LocationViewModel>()
-    var moduleCode by remember { mutableStateOf(locationViewModel.detectedModule()) }
+    val defaultModule = locationViewModel.detectedModule()
+    var moduleCode by remember { mutableStateOf(defaultModule) }
+
+
 
     fun updateSelectedModuleCode(mc: String) {
         moduleCode = mc
     }
-    AutomaticModuleSelection(::updateSelectedModuleCode)
 
     Column(
         modifier = Modifier
@@ -149,6 +150,18 @@ fun CreateScreen(
             Spacer(modifier = Modifier.weight(0.5f))
         }
 
+        // if module was detected and not in create page
+        if (defaultModule.isNotEmpty() && !edit){
+            Row{
+                Spacer(modifier = Modifier.weight(0.5f))
+                Column (modifier = Modifier.weight(2f)){
+                    Text("Detected Module: $defaultModule",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.tertiary)
+                }
+                Spacer(modifier = Modifier.weight(0.5f))
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
         val choices = listOf("Low", "Medium", "High")
@@ -310,7 +323,6 @@ fun CreateScreen(
             onDismiss()
         }
     }
-
 
 }
 
