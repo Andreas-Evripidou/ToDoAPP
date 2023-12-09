@@ -50,4 +50,8 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
     fun createModule(module: ModuleEntity) = viewModelScope.launch {
         moduleDao.updateOrInsert(module)
     }
+
+    fun deleteModule(module: ModuleEntity) = viewModelScope.launch {
+        moduleDao.delete(module)
+    }
 }

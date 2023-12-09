@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 @Entity(tableName = ToDoEntity.TABLE_NAME, foreignKeys = [ForeignKey(entity = ModuleEntity::class,
     parentColumns = ["moduleCode"],
     childColumns = ["moduleCode"],
-    onDelete = ForeignKey.NO_ACTION)])
+    onDelete = ForeignKey.CASCADE)])
 data class ToDoEntity  (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
