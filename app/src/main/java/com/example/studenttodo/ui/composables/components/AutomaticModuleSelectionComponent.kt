@@ -31,7 +31,7 @@ fun AutomaticModuleSelection(updateSelectedModuleCode: (mc: String) -> Unit) {
 
                 foundModule = true
                 // If the module was not detected before
-                if (locationViewModel.getDetectedModule() == ""){
+                if (locationViewModel.detectedModule() == ""){
                     locationViewModel.updateDetectedModule(item.moduleCode)
                     updateSelectedModuleCode(item.moduleCode)
 

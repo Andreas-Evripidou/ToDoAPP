@@ -30,7 +30,7 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
         _setLocation(newLocation)
     }
 
-    fun getDetectedModule(): String {
+    fun detectedModule(): String {
         return detectedModule
     }
     fun updateDetectedModule(mc: String){

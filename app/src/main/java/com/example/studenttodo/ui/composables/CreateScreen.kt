@@ -79,7 +79,7 @@ fun CreateScreen(
 {
     val viewModel = viewModel<CreateViewModel>()
     val locationViewModel = viewModel<LocationViewModel>()
-    var moduleCode by remember { mutableStateOf(locationViewModel.getDetectedModule()) }
+    var moduleCode by remember { mutableStateOf(locationViewModel.detectedModule()) }
 
     fun updateSelectedModuleCode(mc: String) {
         moduleCode = mc
