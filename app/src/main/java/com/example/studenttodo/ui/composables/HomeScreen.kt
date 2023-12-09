@@ -34,9 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
-import androidx.core.app.NotificationCompat
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
@@ -67,7 +65,6 @@ fun HomeScreen() {
                 todo = todo,
                 borderColor = homeViewModel.getBorderColor(todo),
                 onArchive = {homeViewModel.archiveToDo(it)},
-                onViewMore = {homeViewModel.viewMore(it)}
             )
         }
 
@@ -77,7 +74,6 @@ fun HomeScreen() {
 fun displayTodo (
     todo: ToDoEntity,
     onArchive: (ToDoEntity) -> Unit,
-    onViewMore: (ToDoEntity) -> Unit,
     borderColor: Int,
     ){
         var openViewEdit by remember { mutableStateOf(false) }
@@ -87,7 +83,7 @@ fun displayTodo (
         }
 
         if (openViewEdit){
-            viewEditTodo(todo = todo, ::onDismiss)
+            ViewEditTodo(todo = todo, ::onDismiss)
         }
 
         Card (modifier = Modifier
@@ -128,7 +124,7 @@ fun displayTodo (
 }
 
 @Composable
-fun viewEditTodo(todo: ToDoEntity, onDismiss: () -> Unit){
+fun ViewEditTodo(todo: ToDoEntity, onDismiss: () -> Unit){
     Dialog(onDismissRequest = { onDismiss() }) {
         Card(
             modifier = Modifier

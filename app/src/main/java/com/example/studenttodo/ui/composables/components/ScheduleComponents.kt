@@ -43,7 +43,6 @@ fun ScheduleItemAddOrUpdate(openDialog: MutableState<Boolean>, scheduleItem: Tim
     var startTime by remember { mutableStateOf(scheduleItem.startTime.toString()) }
     var endTime by remember { mutableStateOf(scheduleItem.endTime.toString()) }
 
-    val openCreateModuleDialog = remember { mutableStateOf(false)  }
     var itemType by remember { mutableStateOf(scheduleItem.itemType) }
 
     var latitude by remember { mutableStateOf(scheduleItem.lat) }
@@ -63,9 +62,6 @@ fun ScheduleItemAddOrUpdate(openDialog: MutableState<Boolean>, scheduleItem: Tim
         locationRadius = radius
     }
 
-    fun updateSelectedCreateModuleDialog (open: Boolean){
-        openCreateModuleDialog.value = open
-    }
     fun updateSelectedModuleCode(mc: String) {
         moduleCode = mc
     }
@@ -75,12 +71,6 @@ fun ScheduleItemAddOrUpdate(openDialog: MutableState<Boolean>, scheduleItem: Tim
 
     fun updateSelectedEndTime(h: String, m: String)
     { endTime = h.plus(":").plus(m) }
-
-    if (openCreateModuleDialog.value){
-        ModuleCreateDialog(
-            openDialog = openCreateModuleDialog,
-        )
-    }
 
     AlertDialog(
         title = { Text(text = "Add an Item") },
@@ -98,8 +88,7 @@ fun ScheduleItemAddOrUpdate(openDialog: MutableState<Boolean>, scheduleItem: Tim
                         DisplayDateTimeError2()
                     }
 
-                    SelectOrCreateModule(::updateSelectedCreateModuleDialog,
-                        ::updateSelectedModuleCode)
+                    SelectOrCreateModule(::updateSelectedModuleCode, moduleCode = scheduleItem.moduleCode)
 
                     Spacer(modifier = Modifier.size(10.dp))
 

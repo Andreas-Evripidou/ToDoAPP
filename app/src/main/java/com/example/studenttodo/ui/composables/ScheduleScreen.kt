@@ -44,38 +44,37 @@ fun ScheduleScreen (modifier: Modifier = Modifier) {
     val scheduleViewModel = viewModel<ScheduleViewModel>()
     val scheduleItems by viewModel<ScheduleViewModel>().timetable.collectAsState(initial = emptyList())
     val weekdays: List<String> = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
-    val openDialog = remember { mutableStateOf(false)  }
+
 
     Column (horizontalAlignment = Alignment.CenterHorizontally)
     {
         //This is the day of the week, repeat for each work day of the week
         weekdays.forEach { weekday ->
-        if (openDialog.value) {
-            ScheduleItemAddOrUpdate( openDialog, scheduleViewModel.emptyTimetableItem(weekday))
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = weekday,
-                modifier = modifier,
-                style = MaterialTheme.typography.headlineMedium)
+            val openAddDialog = remember { mutableStateOf(false)  }
 
-            IconButton(onClick = { openDialog.value = true })
-            { Icon(Icons.Filled.AddCircle, contentDescription = "Add") }
-        }
-
-
-
-
-        //This repeats for each data value matching the current day of the week
-        val current = scheduleItems.filter {it.day == weekday}
-        current.forEach { scheduleItem ->
-            if (scheduleItem.status ==0){
-                ScheduleItem(scheduleItem = scheduleItem)
-                Spacer(modifier = Modifier.size(4.dp))
+            if (openAddDialog.value) {
+                ScheduleItemAddOrUpdate( openAddDialog, scheduleViewModel.emptyTimetableItem(weekday))
             }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = weekday,
+                    modifier = modifier,
+                    style = MaterialTheme.typography.headlineMedium)
+
+                IconButton(onClick = { openAddDialog.value = true })
+                { Icon(Icons.Filled.AddCircle, contentDescription = "Add") }
+            }
+
+            //This repeats for each data value matching the current day of the week
+            val current = scheduleItems.filter {it.day == weekday}
+            current.forEach { scheduleItem ->
+                if (scheduleItem.status ==0){
+                    ScheduleItem(scheduleItem = scheduleItem)
+                    Spacer(modifier = Modifier.size(4.dp))
+                }
         }
 
         if (weekday != "Friday"){

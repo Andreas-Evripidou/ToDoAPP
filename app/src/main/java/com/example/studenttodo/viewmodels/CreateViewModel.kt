@@ -28,7 +28,7 @@ class CreateViewModel (app:Application): AndroidViewModel(app){
         val toast = Toast.makeText(context, text, duration) // in Activity
         toast.show()
     }
-    fun emptyTodo(): ToDoEntity {
+    fun emptyTodo(moduleCode: String = ""): ToDoEntity {
         return ToDoEntity(
             title = "",
             reminderTime =  LocalTime.now(),

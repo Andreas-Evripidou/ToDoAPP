@@ -40,75 +40,83 @@ import com.example.studenttodo.viewmodels.CreateViewModel
 * */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectOrCreateModule(openDialog: (open: Boolean) -> Unit, updateSelectedModuleCode: (mc: String) -> Unit, rowModifier: Modifier = Modifier, moduleCode: String = "") {
-    Column {
+fun SelectOrCreateModule(updateSelectedModuleCode: (mc: String) -> Unit, rowModifier: Modifier = Modifier, moduleCode: String = "") {
+    val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
+    val openCreateModuleDialog = remember { mutableStateOf(false)  }
+    val moduleTitles = makeArrayOfModuleCodes(modules)
 
-        Row {
-            Text(
-                "Module Code:", modifier = Modifier,
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Text(text = " *", color = MaterialTheme.colorScheme.error)
-        }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember {mutableStateOf(moduleCode)}
+
+    fun updateCreatedModule(mc: String){
+        selectedText = mc
+        updateSelectedModuleCode(mc)
+    }
+
+    if (openCreateModuleDialog.value){
+        ModuleCreateDialog(
+            openDialog = openCreateModuleDialog,
+            updateSelectedModuleCode = ::updateCreatedModule)
+    }
 
 
-        Row(
-            modifier = rowModifier,
-            verticalAlignment = Alignment.CenterVertically
+    Row (modifier = Modifier.fillMaxHeight()) {
+        Text(
+            "Module Code:", modifier = Modifier,
+            style = MaterialTheme.typography.headlineSmall
         )
-        {
-            val modules by viewModel<CreateViewModel>().modules.collectAsState(initial = emptyList())
-            if (modules.isNotEmpty()) {
-                val moduleTitles = makeArrayOfModuleCodes(modules)
-
-                var expanded by remember { mutableStateOf(false) }
-                var selectedText by remember { mutableStateOf(moduleTitles[0]) }
-                if (moduleCode != "" && moduleCode in moduleTitles) {
-                    selectedText = moduleCode
-                } else {
-                    updateSelectedModuleCode(selectedText)
-                }
+        Text(text = " *", color = MaterialTheme.colorScheme.error)
+    }
 
 
-                ExposedDropdownMenuBox(
-                    modifier = Modifier.weight(0.8f),
+    Row(modifier = rowModifier,
+        verticalAlignment = Alignment.CenterVertically)
+    {
+
+        if (modules.isNotEmpty()) {
+            if (selectedText == "" ){
+                selectedText = moduleTitles[0]
+                updateSelectedModuleCode(selectedText)
+            }
+
+            ExposedDropdownMenuBox(
+                modifier = Modifier.weight(0.8f),
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }) {
+                TextField(
+                    value = selectedText,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+                ExposedDropdownMenu(
                     expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }) {
-                    TextField(
-                        value = selectedText,
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier.menuAnchor()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }) {
-                        moduleTitles.forEach { item ->
-                            DropdownMenuItem(
-                                text = { Text(text = item) },
-                                onClick = {
-                                    selectedText = item
-                                    expanded = false
-                                    updateSelectedModuleCode(selectedText)
-                                    //Toast.makeText(context, item, Toast.LENGTH_SHORT)
-                                })
-                        }
+                    onDismissRequest = { expanded = false }) {
+                    moduleTitles.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(text = item) },
+                            onClick = {
+                                selectedText = item
+                                expanded = false
+                                updateSelectedModuleCode(selectedText)
+                                //Toast.makeText(context, item, Toast.LENGTH_SHORT)
+                            })
                     }
                 }
-            } else{
-                Text(text = "No modules found",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.error)
             }
-            IconButton(onClick = { openDialog(true) },
-                modifier = Modifier.weight(0.2f).fillMaxHeight()) {
-                Icon(
-                    Icons.Filled.AddCircle,
-                    contentDescription = "Add Module",
-                    Modifier.fillMaxSize()
-                )
-            }
+        } else{
+            Text(text = "No modules found",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.error)
+        }
+        IconButton(onClick = { openCreateModuleDialog.value = true },
+            modifier = Modifier.weight(0.2f).fillMaxHeight()) {
+            Icon(
+                Icons.Filled.AddCircle,
+                contentDescription = "Add Module",
+                Modifier.fillMaxSize()
+            )
         }
     }
 }
@@ -128,7 +136,7 @@ fun makeArrayOfModuleCodes(modules: List<ModuleEntity>) : ArrayList<String> {
 * */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
+fun ModuleCreateDialog(openDialog: MutableState<Boolean>, updateSelectedModuleCode: (mc: String) -> Unit) {
     val viewModel = viewModel<CreateViewModel>()
     var code by remember { mutableStateOf("") }
     var moduleTitle by remember { mutableStateOf("") }
@@ -171,6 +179,7 @@ fun ModuleCreateDialog(openDialog: MutableState<Boolean>) {
                     moduleTitle = moduleTitle
                 )
                 viewModel.createModule(module = module)
+                updateSelectedModuleCode(code)
                 openDialog.value = false
             }) {
                 Text(text = "Create Module")

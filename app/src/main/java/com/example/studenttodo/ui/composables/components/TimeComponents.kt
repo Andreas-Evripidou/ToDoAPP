@@ -45,7 +45,7 @@ fun SelectTime(time: String, updatedSelectedTime: (h: String, m: String) -> Unit
             value = enteredHours,
             onValueChange = { newInput ->
 
-                if (newInput.toIntOrNull() in 0..24) {
+                if (newInput.toIntOrNull() in 0..24 || newInput == "") {
                     enteredHours = newInput.take(2)
                     updatedSelectedTime(enteredHours, enteredMinutes)
                 }
@@ -63,7 +63,7 @@ fun SelectTime(time: String, updatedSelectedTime: (h: String, m: String) -> Unit
             value = enteredMinutes,
             onValueChange = { newInput ->
 
-                if (newInput.toIntOrNull() in 0..59) {
+                if (newInput.toIntOrNull() in 0..59 || newInput == "") {
                     enteredMinutes = newInput.take(2)
                     updatedSelectedTime(enteredHours, enteredMinutes)
                 }

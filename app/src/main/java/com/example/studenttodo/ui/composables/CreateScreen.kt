@@ -1,9 +1,9 @@
 package com.example.studenttodo.ui.composables
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,14 +32,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.entities.ToDoEntity
+import com.example.studenttodo.ui.composables.components.AutomaticModuleSelection
 import com.example.studenttodo.ui.composables.components.CustomSubMenu
-import com.example.studenttodo.ui.composables.components.ModuleCreateDialog
 import com.example.studenttodo.ui.composables.components.SelectDate
 import com.example.studenttodo.ui.composables.components.SelectImage
 import com.example.studenttodo.ui.composables.components.SelectLocation
 import com.example.studenttodo.ui.composables.components.SelectOrCreateModule
 import com.example.studenttodo.ui.composables.components.SelectTime
 import com.example.studenttodo.viewmodels.CreateViewModel
+import com.example.studenttodo.viewmodels.LocationViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -71,13 +72,20 @@ fun DisplayDateTimeError(){
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), edit: Boolean = false, onDismiss : ()->Unit = {}) {
+fun CreateScreen(
+    toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(),
+    edit: Boolean = false,
+    onDismiss : ()->Unit = {})
+{
     val viewModel = viewModel<CreateViewModel>()
-    val openDialog = remember { mutableStateOf(false) }
+    val locationViewModel = viewModel<LocationViewModel>()
+    var moduleCode by remember { mutableStateOf(locationViewModel.getDetectedModule()) }
 
-    if (openDialog.value) {
-        ModuleCreateDialog(openDialog = openDialog)
+    fun updateSelectedModuleCode(mc: String) {
+        moduleCode = mc
     }
+    AutomaticModuleSelection(::updateSelectedModuleCode)
+
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -111,14 +119,6 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        var moduleCode = toDo.moduleCode
-        fun updateSelectedDialog (open: Boolean){
-            openDialog.value = open
-        }
-        fun updateSelectedModuleCode(mc: String) {
-            moduleCode = mc
-        }
-
         Row {
             Text("Task Description:",
                 style = MaterialTheme.typography.headlineSmall)
@@ -140,10 +140,9 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
 
         Row{
             Spacer(modifier = Modifier.weight(0.5f))
-            Box (modifier = Modifier.weight(2f)){
+            Column (modifier = Modifier.weight(2f)){
                 SelectOrCreateModule(
                     rowModifier = Modifier.fillMaxWidth(),
-                    openDialog = ::updateSelectedDialog,
                     updateSelectedModuleCode = ::updateSelectedModuleCode,
                     moduleCode = moduleCode)
             }
@@ -290,6 +289,7 @@ fun CreateScreen(toDo: ToDoEntity = viewModel<CreateViewModel>().emptyTodo(), ed
                         createdLongitude = "temp",
                         moduleCode = moduleCode
                     )
+                    Log.i("create", "todo: $todo")
                     viewModel.createOrUpdateToDo(todo, edit)
                     showSuccess = true
                 } else {
