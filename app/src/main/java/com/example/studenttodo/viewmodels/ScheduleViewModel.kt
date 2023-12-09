@@ -8,23 +8,11 @@ import com.example.studenttodo.data.ToDoDatabase
 import com.example.studenttodo.entities.TimetableEntity
 import kotlinx.coroutines.launch
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 internal class ScheduleViewModel (app: Application): AndroidViewModel(app) {
     private val context = getApplication<Application>().applicationContext
     val dao = ToDoDatabase.getDB(context).timetableDAO()
     val timetable = dao.getAllTimeTable()
-
-    suspend fun findCurrentScheduleItem(timeNow: LocalTime, day: String): List<TimetableEntity> {
-
-        // Formatting current time as "hh:mm"
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
-        val formattedTimeString = timeNow.format(formatter)
-        val formattedTime = LocalTime.parse(formattedTimeString)
-        val formattedDay = day.lowercase().replaceFirstChar { it.uppercase() }
-
-        return dao.getTimetableRowsByTime(givenTime = formattedTime, giveDay = formattedDay)
-    }
 
 
 
