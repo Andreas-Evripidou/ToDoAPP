@@ -52,7 +52,7 @@ fun ShowToDo(
     }
 
     if (openViewEdit){
-        viewEditTodo(todo = todo, ::onDismiss)
+        ViewEditTodo(todo = todo, ::onDismiss)
     }
 
     val openDeleteDialog = remember { mutableStateOf(false)  }

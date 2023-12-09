@@ -1,5 +1,7 @@
 package com.example.studenttodo.ui.composables
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.example.studenttodo.entities.ToDoEntity
 
 data class NavigationComponent(
     val title: String,
@@ -84,6 +85,7 @@ fun NavigationComponents(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun ScreenComponents(
     selectedScreenID: Int,
@@ -100,11 +102,12 @@ fun ScreenComponents(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationScaffold(){
+fun NavigationScaffold() {
     var selectedScreenID by remember { mutableStateOf(ScreenID.HOME) }
     var title by remember {
         mutableStateOf("Home") //TODO tidy this
     }
+
     fun updatedSelectedID(id: Int, newTitle: String){
         //Note: this is a convenience function
         selectedScreenID = id
@@ -131,7 +134,8 @@ fun NavigationScaffold(){
                 verticalArrangement = Arrangement.Top)
             {
                 Spacer(modifier = Modifier.size(10.dp))
-                ScreenComponents(selectedScreenID = selectedScreenID, updateSelected = ::updatedSelectedID)
+                ScreenComponents(selectedScreenID = selectedScreenID,
+                    updateSelected = ::updatedSelectedID)
                 Spacer(modifier = Modifier.size(10.dp))
             }
         })

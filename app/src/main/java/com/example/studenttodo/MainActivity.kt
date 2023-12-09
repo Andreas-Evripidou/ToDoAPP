@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.studenttodo.services.GeoLocationService
+import com.example.studenttodo.services.NotificationService
 import com.example.studenttodo.ui.composables.NavigationScaffold
 import com.example.studenttodo.ui.theme.StudentToDoTheme
 import com.example.studenttodo.viewmodels.LocationViewModel
@@ -29,7 +30,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val locationViewModel = viewModel<LocationViewModel>()
             GeoLocationService.locationViewModel = locationViewModel
-            val serviceIntent = Intent(this, NotifsBackground::class.java)
+            val serviceIntent = Intent(this, NotificationService::class.java)
+
             startService(serviceIntent)
             StudentToDoTheme {
                 // A surface container using the 'background' color from the theme

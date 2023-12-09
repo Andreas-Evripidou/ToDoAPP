@@ -1,26 +1,15 @@
-package com.example.studenttodo
+package com.example.studenttodo.services
 
 import android.app.Service
 import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.widget.Toast
-import androidx.compose.runtime.collectAsState
 import com.example.studenttodo.data.ToDoDatabase
-import com.example.studenttodo.data.TodoDAO
-import com.example.studenttodo.entities.ToDoEntity
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.forEach
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.concurrent.Flow
 
-class NotifsBackground : Service() {
+class NotificationService : Service() {
 
     private lateinit var handler: Handler
 
@@ -106,7 +95,3 @@ class NotifsBackground : Service() {
         return dateFormat.format(calendar.time)
     }
 }
-
-
-
-
