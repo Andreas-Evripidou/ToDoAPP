@@ -82,14 +82,15 @@ fun SelectImage(selectedUri: String, updateSelectedUri: (uri: String) -> Unit, e
             }
 
         })
+        if(!edit) {
+            Row (modifier = Modifier
+                .widthIn(max = 260.dp)
+                .heightIn(max = 400.dp)){
+                pickedImageBitmap?.let { imageBitmap ->
+                    Image(imageBitmap, null)
 
-        Row (modifier = Modifier
-            .widthIn(max = 260.dp)
-            .heightIn(max = 400.dp)){
-            pickedImageBitmap?.let { imageBitmap ->
-                Image(imageBitmap, null)
-
-                Spacer(modifier = Modifier.size(4.dp))
+                    Spacer(modifier = Modifier.size(4.dp))
+                }
             }
         }
         OutlinedButton(onClick = {
