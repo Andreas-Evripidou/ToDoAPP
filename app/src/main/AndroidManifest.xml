@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".NotifsBackground"
+            android:name=".services.NotificationService"
             android:enabled="true"
             android:exported="false" />
     </application>
