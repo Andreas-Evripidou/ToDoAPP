@@ -2,6 +2,7 @@ package com.example.studenttodo.viewmodels
 
 import android.app.Application
 import android.location.Location
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -47,13 +48,34 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
     fun updateLocation(newLocation: Location) {
         // Set the new location and trigger automatic module selection in a coroutine
         _setLocation(newLocation)
-
         val scope = CoroutineScope(Dispatchers.Default)
         scope.launch {
             automaticModuleSelection()
+            locationNotif()
         }
+
     }
 
+    fun locationNotif(){
+        val dao = ToDoDatabase.getDB(context).todoDao()
+        val todos = dao.getActiveTodosNoti()
+
+        todos.forEach { x ->
+            val longi = x.longitude
+            val lati = x.latitude
+            val range = x.range
+            val title = x.title
+
+            if (isInArea(longi, lati, range)) {
+                println("IT IS")
+
+                val text = "Reminder: you have entered the location of  ${title}!"
+                val duration = Toast.LENGTH_LONG
+                val toast = Toast.makeText(context, text, duration) // in Activity
+                toast.show()
+            }
+        }
+    }
     /**
      * Retrieves the currently detected module.
      *
@@ -103,6 +125,7 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
         // Return false if the location is not valid
         return false
     }
+
 
     fun invalidate() {
         _setLocation(null)

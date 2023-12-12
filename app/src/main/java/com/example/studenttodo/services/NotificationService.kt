@@ -5,9 +5,11 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.widget.Toast
+import androidx.lifecycle.ViewModel
 import com.example.studenttodo.data.ToDoDatabase
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import com.example.studenttodo.viewmodels.LocationViewModel
 
 class NotificationService : Service() {
 
@@ -82,6 +84,7 @@ class NotificationService : Service() {
         }
 
     }
+
 
     private fun getCurrentTime(): String {
         val calendar = Calendar.getInstance()
