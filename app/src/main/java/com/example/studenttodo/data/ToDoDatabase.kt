@@ -1,29 +1,19 @@
 package com.example.studenttodo.data
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.studenttodo.entities.ModuleEntity
-import com.example.studenttodo.entities.ToDoEntity
 import com.example.studenttodo.entities.TimetableEntity
-import com.example.studenttodo.viewmodels.CreateViewModel
-import kotlinx.coroutines.CoroutineScope
+import com.example.studenttodo.entities.ToDoEntity
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.LocalTime
-import kotlin.coroutines.CoroutineContext
 
 @Database(entities = [ToDoEntity::class,  ModuleEntity::class, TimetableEntity::class], version = 10, exportSchema = false)
 @TypeConverters(Converters::class)
@@ -35,8 +25,6 @@ abstract class ToDoDatabase : RoomDatabase() {
 
     companion object {
         private const val DB_NAME = "todo_db"
-
-        var firstrun = false
 
         private fun buildDatabase(context: Context) =
             Room.databaseBuilder(context,
@@ -61,7 +49,7 @@ abstract class ToDoDatabase : RoomDatabase() {
 
         fun createTemplates(context: Context) {
             Log.d("Database","Templates")
-            val modleTemplate = ModuleEntity(
+            val moduleTemplate = ModuleEntity(
                 moduleCode = "TEMPLATE",
                 moduleTitle = "Template Module",
             )
@@ -122,8 +110,8 @@ abstract class ToDoDatabase : RoomDatabase() {
 
             GlobalScope.launch {
                 Log.d("Database","Insert Templates")
-                var moduleDao  = getDB(context).moduleDAO()
-                moduleDao.updateOrInsert(modleTemplate)
+                val moduleDao  = getDB(context).moduleDAO()
+                moduleDao.updateOrInsert(moduleTemplate)
                 val todoDao = getDB(context).todoDao()
                 todoDao.updateOrInsert(todoTeamAssignment)
                 todoDao.updateOrInsert(todoAssignment)
