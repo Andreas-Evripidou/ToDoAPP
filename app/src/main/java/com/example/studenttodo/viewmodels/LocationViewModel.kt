@@ -134,7 +134,6 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
 
                 // Calculate the distance between the two locations
                 val distance = startPoint.distanceTo(endPoint).toDouble()
-                println(distance)
                 // Check if the distance is within the specified area radius
                 distance <= areaRadius.toDouble()
             } catch (e: Exception) {
