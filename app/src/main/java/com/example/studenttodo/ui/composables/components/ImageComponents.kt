@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -46,14 +47,16 @@ fun SelectImage(selectedUri: String, updateSelectedUri: (uri: String) -> Unit, e
 
     if (edit) {
         if (showImage.value) {
-
             val context = LocalContext.current
             val uri = Uri.parse(selectedUri)
             var bitmap : Bitmap?= null
-            uri?.let { uri ->
-                    val source = ImageDecoder.createSource(context.contentResolver,uri)
+            try {
+                uri?.let { uri ->
+                    val source = ImageDecoder.createSource(context.contentResolver, uri)
                     bitmap = ImageDecoder.decodeBitmap(source)
                 }
+            } catch (e: Exception) {
+            }
             if (bitmap != null) {
                 Row (modifier = Modifier
                     .widthIn(max = 260.dp)
@@ -61,6 +64,7 @@ fun SelectImage(selectedUri: String, updateSelectedUri: (uri: String) -> Unit, e
                     Image(bitmap = bitmap!!.asImageBitmap(), contentDescription = "Selected image")
                 }
             }
+
 
         }
     }
