@@ -61,6 +61,9 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
     }
 
     //Displays notification when the user enters the location of a reminder
+    //to prevent code executing quickly in succession and sending multiple notifs
+    private var lastExecutionTimeMillis = 0L
+    private val cooldownMillis = 2000L
     suspend fun locationNotif(){
         val dao = ToDoDatabase.getDB(context).todoDao()
         val todos = dao.getActiveTodosNoti()
@@ -69,21 +72,29 @@ class LocationViewModel (app: Application): AndroidViewModel(app) {
             val lati = x.latitude
             val range = x.range
             val title = x.title
-            //checks if user is in area of to do and a notification hasn't been sent yet
-            if (isInArea(longi, lati, range) && x.atLocationNotified == 0) {
-                Handler(Looper.getMainLooper()).post(){
-                    val text = "Reminder: you have entered the location of  ${title}!"
-                    val duration = Toast.LENGTH_LONG
-                    val toast = Toast.makeText(context,text,duration)
-                    toast.show()
+            val currentTimeMillis = System.currentTimeMillis()
+            if (currentTimeMillis - lastExecutionTimeMillis >= cooldownMillis) {
+                // Update the last execution time
+                lastExecutionTimeMillis = currentTimeMillis
+
+                //checks if user is in area of to do and a notification hasn't been sent yet
+                if (isInArea(longi, lati, range) && x.atLocationNotified == 0) {
+                    print("operating")
+                    Handler(Looper.getMainLooper()).post(){
+                        val text = "Reminder: you have entered the location of  ${title}!"
+                        val duration = Toast.LENGTH_LONG
+                        val toast = Toast.makeText(context,text,duration)
+                        toast.show()
+                    }
+                    x.atLocationNotified = 1
+                    dao.update(x)
+                    //enables notifications to be sent again once user leaves to do area
+                }else if(!isInArea(longi,lati,range) && x.atLocationNotified == 1){
+                    x.atLocationNotified = 0
+                    dao.update(x)
                 }
-                x.atLocationNotified = 1
-                dao.update(x)
-            //enables notifications to be sent again once user leaves to do area
-            }else if(!isInArea(longi,lati,range) && x.atLocationNotified == 1){
-                x.atLocationNotified = 0
-                dao.update(x)
             }
+
         }
     }
     /**
