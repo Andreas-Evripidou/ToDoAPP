@@ -62,7 +62,7 @@ abstract class ToDoDatabase : RoomDatabase() {
         fun createTemplates(context: Context) {
             Log.d("Database","Templates")
             val moduleCOM31007 = ModuleEntity(
-                moduleCode = "COM31007",
+                moduleCode = "TEMPLATE",
                 moduleTitle = "Software Development for Mobile Devices",
             )
 
@@ -81,7 +81,7 @@ abstract class ToDoDatabase : RoomDatabase() {
                 createdLongitude = "-1.4815964748271253",
                 createdDate = LocalDate.now(),
                 createdTime = LocalTime.now(),
-                moduleCode = "COM31007"
+                moduleCode = "TEMPLATES"
             )
 
             GlobalScope.launch {
