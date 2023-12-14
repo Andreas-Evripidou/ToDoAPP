@@ -29,7 +29,8 @@ data class ToDoEntity  (
     val createdLongitude: String,
     val createdDate: LocalDate = LocalDate.now(),
     val createdTime: LocalTime = LocalTime.now(),
-    val moduleCode: String
+    val moduleCode: String,
+    var atLocationNotified: Int = 0
 ) {
     companion object {
         const val TABLE_NAME = "Todos"

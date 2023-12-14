@@ -18,4 +18,7 @@ object GeoLocationService: LocationListener {
         locationViewModel?.updateLocation( latestLocation )
         Log.i("geolocation", "Location set to latest")
     }
+
+
 }
+
